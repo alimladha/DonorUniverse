@@ -59,7 +59,8 @@ class Node:
 class sequenceObject:
     def __init__(self):
         self.head = Node() ##sequence object just contains head Node (ie. no parent)
-        
+        self.donor = None
+        self.sample = None
         
 
 
