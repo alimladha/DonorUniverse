@@ -2,12 +2,10 @@ import os
 import numpy as np
 import sequence
 from sequence import Node, sequenceObject
-
+import csv
+from profile import Donor
 
 def loadSequenceData():
-    #Change to database directory
-    os.chdir('..') 
-    os.chdir('Databases')
 
     #load OTU data as table
     table= np.genfromtxt('OTUtable.txt', dtype = None, skip_header=1)
@@ -15,7 +13,6 @@ def loadSequenceData():
     #loadOTU header
     txt=open('OTUtable.txt')
     header=txt.readline().split()
-    print header
     
     #for each donor create a sequence object
     sequences = [] # create empty list of sequenceObjects
@@ -25,8 +22,8 @@ def loadSequenceData():
         donor = donorIDsampleID[0]
         sample = donorIDsampleID[1]
         sixteenS = sequence.sequenceObject() #create sequence object
-        sixteenS.donor=donor
-        sixteenS.sample=sample
+        sixteenS.donor=int(donor)
+        sixteenS.sample=int(sample)
         nameColumn = len(header)-1 #define column where taxonomic data is located
         otuColumn = 0 #define column where OTU ID is located
         for row in table: #iterate through each OTU
@@ -67,7 +64,9 @@ def loadSequenceData():
     
     
 
-
+'''
+This function counts the total OTUs ending at this level and any below ie. Firmicutes: 1230432 stored under the Node.count
+'''
 def countCalculator(head):
     if isinstance(head, sequenceObject):
         countCalculator(head.head)
@@ -81,8 +80,45 @@ def countCalculator(head):
                 sumVal += child.count
         head.count = sumVal
 
-            
-loadSequenceData()    
+
+def donorInitiator():
+    #Change to database directory
+    os.chdir('..') 
+    os.chdir('Databases')
+    
+    #open donor ID list
+    donorCSV=open('DonorListSample.csv', 'r')
+    csvDonorReader= csv.reader(donorCSV, dialect=csv.excel_tab)
+    
+    #get list of donor numbers
+    rownum = 0;
+    donorNumList = []
+    for row in csvDonorReader:
+        if rownum == 0:
+            donorHeader = row[0]
+        else:
+            donorNumList.append(int(row[0]))
+        rownum+=1
+    #create list of donor objects based on donor number list
+    print donorNumList
+    donorList=[]
+    for donorNum in donorNumList:
+        newDonor = Donor(donorNum)
+        donorList.append(newDonor)
+    
+    #load sequence data
+    donorSequences = loadSequenceData() 
+    
+    #assign all donors to 
+    for donor in donorList:
+        for donorSequence in donorSequences:
+            if donor.donorID == donorSequence.donor:
+                donor.sequences.append(donorSequence)
+    
+donorInitiator()
+    
+
+    
 
         
                 
