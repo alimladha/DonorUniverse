@@ -39,6 +39,7 @@ class Node:
         self.otu = [] ## always empty list
         self.otuCount = [] ##always empty list
         self.value = value ## None if value isn't passed (only for sixteenS head)
+        self.taxonomiclevel = None ##taxonomic level set during data import
     
     def __eq__(self, other):
         return (isinstance(other, self.__class__)
@@ -53,8 +54,8 @@ class Node:
         else:
             string = self.value
         outString = string+ ":"
-        #for child in self.children:
-        #    outString += child.value
+        for child in self.children:
+            outString += child.value + ","
         return outString
 class sequenceObject:
     def __init__(self):

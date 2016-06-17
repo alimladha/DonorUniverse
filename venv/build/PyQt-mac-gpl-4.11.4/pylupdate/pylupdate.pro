@@ -1,0 +1,13 @@
+TARGET = pylupdate4
+TEMPLATE = app
+QT -= gui
+QT += xml
+CONFIG += warn_on release
+CONFIG -= app_bundle
+CONFIG -= android_install
+target.path = /Users/alim/GitHub/DonorUniverseGit/venv/bin/../bin
+INSTALLS += target
+INCLUDEPATH += /Users/alim/GitHub/DonorUniverseGit/venv/build/PyQt-mac-gpl-4.11.4/pylupdate
+VPATH = /Users/alim/GitHub/DonorUniverseGit/venv/build/PyQt-mac-gpl-4.11.4/pylupdate
+HEADERS = metatranslator.h proparser.h simtexth.h translator.h
+SOURCES = fetchtr.cpp main.cpp merge.cpp metatranslator.cpp numberh.cpp proparser.cpp sametexth.cpp simtexth.cpp translator.cpp

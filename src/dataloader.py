@@ -4,6 +4,9 @@ import sequence
 from sequence import Node, sequenceObject
 import csv
 from profile import Donor
+import Queue, sets
+
+taxonomicMap = []
 
 def loadSequenceData():
 
@@ -49,6 +52,7 @@ def loadSequenceData():
                 
                 oldChildren = oldNode.children
                 newNode = sequence.Node(tax[level], oldNode) #create new node with dictionary value and oldNode as parent
+                newNode.taxonomiclevel=level
                 # if newNode is already in oldChildren, set newNode = same child of old Node
                 if newNode in oldChildren: 
                     indexOfSame = oldChildren.index(newNode)
@@ -57,6 +61,10 @@ def loadSequenceData():
                 else:
                     oldNode.children.append(newNode) #add to list of children
                 oldNode = newNode #set oldNode to newNode
+                # if we are at the species level, add OTU and OTU value
+                if level == sequence.Species:
+                    oldNode.otu.append(row[otuColumn]) 
+                    oldNode.otuCount.append(otuValue)
         sequences.append(sixteenS)
     for sequenceData in sequences:
         countCalculator(sequenceData)
@@ -106,20 +114,56 @@ def donorInitiator():
         newDonor = Donor(donorNum)
         donorList.append(newDonor)
     
-    #load sequence data
+    #load sequence data and map it
     donorSequences = loadSequenceData() 
+    taxMap = taxMapper(donorSequences)
+    global taxonomicMap
+    taxonomicMap.extend(taxMap)
     
-    #assign all donors to 
+    #assign all sequences to appropriate donors (not efficient but n is small)
     for donor in donorList:
         for donorSequence in donorSequences:
             if donor.donorID == donorSequence.donor:
                 donor.sequences.append(donorSequence)
     
-donorInitiator()
     
+    return donorList
+'''
+creates list of dictionaries for each taxonomic level with possible children
+'''
+def taxMapper(sequences):
+    taxMap = [{}, {}, {}, {}, {}, {}] ##create empty list for TaxMap with each dictionary representing Kingdom .. etc
+    for sixteenS in sequences: ## go through each sequence
+        nodes = Queue.Queue()
+        curNode = sixteenS.head 
+        children = curNode.children
+        for child in children: ## add all initial kingdoms to queue
+            nodes.put(child)
+        while( not(nodes.empty()) ): #continue if no more nodes above species level
+            curNode = nodes.get() 
+            level = curNode.taxonomiclevel 
+            levelNumber = sequence.TaxPyramid.index(level) ## get current taxonomic level of node
+            dictionary = taxMap[levelNumber] ## get corresponding dicitonary for taxonomic level
+            keyString = curNode.value
+            ##gets set of children or creates new one if it doesn't exist
+            if dictionary.has_key(keyString): 
+                childSet = dictionary[keyString]
+            else:
+                dictionary[keyString] = sets.Set()
+                childSet = dictionary[keyString]  
+            ##gets list of current Nodes children and adds them to queue  
+            childList = []
+            for child in curNode.children:
+                childList.append(child.value)
+                ## only add if level is not species
+                if child.taxonomiclevel != sequence.Species:
+                    nodes.put(child)
+            ## goes through list of children and adds them to the children set in dictionary       
+            for child in childList:
+                childSet.add(child)
+    return taxMap
 
-    
-
+        
         
                 
         
