@@ -55,6 +55,8 @@ class DonorRankNode:
 def ranker(donors):
     sequences=[]
     searchList = [{}, {}, {}, {}, {}, {}, {}]
+    global donorsWithSequences
+    del donorsWithSequences[:]
     for donor in donors:
         if donor.sequences:
             global donorsWithSequences
@@ -182,7 +184,7 @@ def fattyAcidSearcher(donors, searchList):
     
 def listDonorRankSearcher(donorList, donorID):
     for donor in donorList:
-        if donor.donorID == donorID:
+        if donor.idNumber == donorID:
             return True
     return False
 

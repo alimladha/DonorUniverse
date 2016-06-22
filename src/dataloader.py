@@ -90,10 +90,9 @@ def countCalculator(head):
         head.count = sumVal
 
 
-def donorInitiator():
+def donorInitiator(databaseDirectory):
     #Change to database directory
-    os.chdir('..') 
-    os.chdir('Databases')
+    os.chdir(str(databaseDirectory))
     
     #open donor ID list
     donorCSV=open('DonorListSample.csv', 'r')
@@ -201,8 +200,6 @@ def loadSCFAData():
         
     return SCFAdict  
             
-
-donorInitiator()
 
         
         

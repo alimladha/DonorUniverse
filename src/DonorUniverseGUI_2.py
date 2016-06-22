@@ -396,8 +396,10 @@ if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
     Form = QtGui.QWidget()
-    donors = dataloader.donorInitiator()
+    databaseDirectory = QtGui.QFileDialog.getExistingDirectory(None,QtCore.QString("Open Database Directory"),"/home", QtGui.QFileDialog.ShowDirsOnly | QtGui.QFileDialog.DontResolveSymlinks);
+    donors = dataloader.donorInitiator(databaseDirectory)
     ui = Ui_Form()
     ui.setupUi(Form)
     Form.show()
+    Form.raise_()
     sys.exit(app.exec_())

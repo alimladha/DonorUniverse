@@ -1,0 +1,6 @@
+#!/Users/alim/GitHub/DonorUniverseGit/venv/bin/python
+
+from cx_Freeze import main
+
+main()
+
