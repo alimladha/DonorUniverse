@@ -7,6 +7,7 @@ from profile import Donor
 import Queue, sets
 
 taxonomicMap = []
+donors=[]
 
 def loadSequenceData():
 
@@ -102,23 +103,29 @@ def donorInitiator():
     rownum = 0;
     donorNumList = []
     for row in csvDonorReader:
+        rowInfo = row[0].split(',')
         if rownum == 0:
             donorHeader = row[0]
         else:
-            donorNumList.append(int(row[0]))
+            donorNumList.append(int(rowInfo[0]))
         rownum+=1
     #create list of donor objects based on donor number list
-    print donorNumList
     donorList=[]
     for donorNum in donorNumList:
         newDonor = Donor(donorNum)
         donorList.append(newDonor)
     
     #load sequence data and map it
-    donorSequences = loadSequenceData() 
+    donorSequences = loadSequenceData()  
     taxMap = taxMapper(donorSequences)
     global taxonomicMap
     taxonomicMap.extend(taxMap)
+    
+    #load SCFA Data and assign it to appropriate donors
+    fattyAcidData = loadSCFAData()
+    for donor in donorList:
+        if fattyAcidData.has_key(donor.donorID):
+            donor.shortChainFattyAcids = fattyAcidData[donor.donorID]
     
     #assign all sequences to appropriate donors (not efficient but n is small)
     for donor in donorList:
@@ -126,7 +133,8 @@ def donorInitiator():
             if donor.donorID == donorSequence.donor:
                 donor.sequences.append(donorSequence)
     
-    
+    global donors
+    donors = donorList
     return donorList
 '''
 creates list of dictionaries for each taxonomic level with possible children
@@ -162,6 +170,39 @@ def taxMapper(sequences):
             for child in childList:
                 childSet.add(child)
     return taxMap
+
+def loadSCFAData():
+    #load SCFA Data table
+    table = np.genfromtxt('SCFAtable.csv', dtype= None, delimiter = ',')
+    
+    SCFAdict = {}
+    
+    #get the header make a list of it
+    header = table[0]
+    fattyAcids = []
+    for i in range(1, len(header)):
+        fattyAcids.append(header[i])
+    
+    # get each donor's scfa data and enter it into dictionary as a dictionary with the name of each fatty acid as a key
+    for i in range(1, len(table)):
+        donorFattyAcids = table[i]
+        donorID = 0
+        acidData={}
+        for j in range(0, len(donorFattyAcids)):
+            val= donorFattyAcids[j]
+            if j== 0:
+                donorID = int(val)
+            elif val == '':
+                acidData[fattyAcids[j-1]]=float(0)
+            else:
+                acidData[fattyAcids[j-1]]=float(val)
+    
+        SCFAdict[donorID] = acidData
+        
+    return SCFAdict  
+            
+
+donorInitiator()
 
         
         

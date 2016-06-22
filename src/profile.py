@@ -13,7 +13,7 @@ class Donor:
         self.donorID = donorID
         self.clinicalInfo = None
         self.sequences = []
-        self.shortChainFattyAcids=[]
+        self.shortChainFattyAcids={}
         self.materialAvailable = 0
         self.productionRate = 0
         

@@ -175,8 +175,10 @@ class Ui_Form(object):
             taxDict = taxonomicMap[taxonomicLevel]
             nextList = taxDict[str(text)]
             QtNextList = listToQstringList(nextList)
+            for x in range(col+1, self.tableWidget.columnCount()):
+                nextWidget = self.tableWidget.cellWidget(row, x)
+                nextWidget.clear()
             nextWidget = self.tableWidget.cellWidget(row, col+1)
-            nextWidget.clear()
             nextWidget.addItems(QtNextList)
 
 
