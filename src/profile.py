@@ -8,14 +8,37 @@
 
 '''
 
+genderDict = {'Male': 'm', 'Female': 'f'}
+
 class Donor:
     def __init__(self, donorID):
         self.donorID = donorID
         self.clinicalInfo = None
         self.sequences = []
         self.shortChainFattyAcids={}
-        self.materialAvailable = 0
         self.productionRate = 0
+        self.safetyRating = 0
+        self.currentStudies = 0
+        self.bmi=0
+        self.waistCircumference = 0
+        self.age = 0
+        self.gender = 'f'
+        self.processingStatus = ''
+        self.shippingStatus = ''
+        self.materialAvailable = {}
+        self.sdi = 0
+        self.jsd = 0
+        self.fprow = 0
+        self.totalSCFA = 0.0
         
+    def countTotalScfa(self):
+        '''
+        method counts the total amount of SCFA detected in the SCFA dictionary
+        '''
+        sumVal = 0.0
+        for acid  in self.shortChainFattyAcids.keys():
+            value = self.shortChainFattyAcids[acid]
+            sumVal=sumVal+value
+        self.totalSCFA = sumVal
     
     

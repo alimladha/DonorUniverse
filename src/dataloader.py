@@ -9,6 +9,10 @@ from UniverseGUI import raiseFileError
 
 taxonomicMap = [] ##global taxonomic Map 
 donors=[] ##global list of donors
+sdiAverage = 0
+jsdAverage = 0
+fprowAverage = 0
+totalSCFAAverage = 0
 
 def loadSequenceData():
     '''
@@ -148,7 +152,7 @@ def donorInitiator(databaseDirectory):
     for donor in donorList:
         if fattyAcidData.has_key(donor.donorID):
             donor.shortChainFattyAcids = fattyAcidData[donor.donorID]
-    
+            donor.countTotalScfa()
     #assign all sequences to appropriate donors (not efficient but n is small)
     for donor in donorList:
         for donorSequence in donorSequences:
