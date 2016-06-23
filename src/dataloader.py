@@ -5,12 +5,16 @@ from sequence import Node, sequenceObject
 import csv
 from profile import Donor
 import Queue, sets
+from UniverseGUI import raiseFileError
 
-taxonomicMap = []
-donors=[]
+taxonomicMap = [] ##global taxonomic Map 
+donors=[] ##global list of donors
 
 def loadSequenceData():
-
+    '''
+    This function loads the sequence data from OTUtable.txt, it puts the data into sequenceObjects with
+    internal Nodes. It grabs all information regardless of whether the donor exists in the donorList.csv
+    '''
     #load OTU data as table
     table= np.genfromtxt('OTUtable.txt', dtype = None, skip_header=1)
     
@@ -73,26 +77,44 @@ def loadSequenceData():
     
     
 
-'''
-This function counts the total OTUs ending at this level and any below ie. Firmicutes: 1230432 stored under the Node.count
-'''
+
 def countCalculator(head):
-    if isinstance(head, sequenceObject):
+    '''
+    This function counts the total OTUs ending at this level and any below 
+    ie. Firmicutes: 1230432 stored under the Node.count
+    '''
+    if isinstance(head, sequenceObject): ## if this is a sequence object, call this method on the head Node
         countCalculator(head.head)
     if isinstance(head, Node):
         sumVal = 0
-        for otuValue in head.otuCount:
+        for otuValue in head.otuCount: ## sum values of OTU ending at this point
             sumVal+=otuValue
         if head.children:
-            for child in head.children:
-                countCalculator(child)
+            for child in head.children: ## for every child in children, count their values
+                countCalculator(child) ## and sum it with the current Nodes sumVal total
                 sumVal += child.count
         head.count = sumVal
 
 
 def donorInitiator(databaseDirectory):
-    #Change to database directory
+    '''
+    This function intitiates all the donor objects pointed to the database passed in
+    it returns a list of donor objects with appropriate donorIDs, 16s data, and SCFA data
+    order is in the same provided in the donorList.csv file
+    '''
+
+    #Change to database directory and check for correct files, if they aren't there try again
     os.chdir(str(databaseDirectory))
+    fileListCWD = os.listdir(os.getcwd())
+    DonorFile = 'DonorListSample.csv'
+    OTUtable = 'OTUtable.txt'
+    SCFAData = 'SCFAtable.csv'
+    requiredFiles = [DonorFile, OTUtable, SCFAData]
+    for file in requiredFiles:
+        if not file in fileListCWD:
+            newDirectory = raiseFileError()
+            donorInitiator(newDirectory)
+            break
     
     #open donor ID list
     donorCSV=open('DonorListSample.csv', 'r')
@@ -108,6 +130,7 @@ def donorInitiator(databaseDirectory):
         else:
             donorNumList.append(int(rowInfo[0]))
         rownum+=1
+        
     #create list of donor objects based on donor number list
     donorList=[]
     for donorNum in donorNumList:
@@ -132,13 +155,15 @@ def donorInitiator(databaseDirectory):
             if donor.donorID == donorSequence.donor:
                 donor.sequences.append(donorSequence)
     
+    ## asign this list to the global variable donors
     global donors
     donors = donorList
     return donorList
-'''
-creates list of dictionaries for each taxonomic level with possible children
-'''
+
 def taxMapper(sequences):
+    '''
+    creates list of dictionaries for each taxonomic level with possible children
+    '''
     taxMap = [{}, {}, {}, {}, {}, {}] ##create empty list for TaxMap with each dictionary representing Kingdom .. etc
     for sixteenS in sequences: ## go through each sequence
         nodes = Queue.Queue()
@@ -171,6 +196,10 @@ def taxMapper(sequences):
     return taxMap
 
 def loadSCFAData():
+    '''
+    This function takes in a SCFA table csv within the database folder. it returns a dictionary of donorID
+    mapping to SCFA data. the acid data is itself a dictionary with {'SCFA", count} 
+    '''
     #load SCFA Data table
     table = np.genfromtxt('SCFAtable.csv', dtype= None, delimiter = ',')
     

@@ -2,17 +2,17 @@ from cx_Freeze import setup, Executable
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
-buildOptions = dict(packages = [], excludes = ['tcl', 'tkinter', 'Tkinter'])
+buildOptions = dict(packages = [], excludes = ['tcl', 'ttk', 'tkinter', 'Tkinter', 'Tcl'])
 
 import sys
-base = None if sys.platform=='win32' else None
+base = 'Win32GUI' if sys.platform=='win32' else None
 
 executables = [
-    Executable('DonorUniverseGUI_2.py', base=base)
+    Executable('py.py', base=base)
 ]
 
-setup(name='CRDonorUniverse',
+setup(name='CR Donor Universe',
       version = '1.0',
-      description = 'CR Donor Universe Test v1.0',
+      description = 'Testing of CR Donor Univesse',
       options = dict(build_exe = buildOptions),
       executables = executables)

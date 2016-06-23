@@ -1,26 +1,21 @@
-## This will take in a profile from the user and output the topMatch or topKMatches, depending on what is requested
+'''
+ Everything in this file performs searches through already loaded data
 '''
 
-func topMatch(donorProfile) #functin returns top donor that matches input request profile
-
-
-
-
-
-
-func topKMatches(donorProfile) #function returns top k donors that match input request profile
-
-'''
 from Queue import PriorityQueue, Queue
 from functools import total_ordering
 from sequence import TaxPyramid
 import math
 
 
-donorsWithSequences = []
+donorsWithSequences = [] ##global variable with all donors who have sequence Data
 
 @total_ordering
 class DonorRankNode:
+    '''
+    class associates donor IDs with counts, this is used for sorting
+    the greater the value, the lower it is considered ie when sorted normally [ {ID, 51}, {ID, 30}, {ID, 20} ]
+    '''
     def __init__(self, idNumber, count):
         self.idNumber = idNumber
         self.count = count
@@ -53,6 +48,13 @@ class DonorRankNode:
     
     
 def ranker(donors):
+    '''
+    takes list of donors, finds those with sequences, assigns those to donors with sequences
+    then it goes through and for each hit, adds a dictionary entry for the corresponding taxonomic level
+    with label as key (ie. firmicutes) and donor rank objects in a priority queue as values
+    then returns this dictionary
+    Function requires list of donor profiles that include some properly formatted sequence data
+    '''
     sequences=[]
     searchList = [{}, {}, {}, {}, {}, {}, {}]
     global donorsWithSequences
@@ -86,6 +88,10 @@ def ranker(donors):
     return searchList
     
 def topMatch(weight, value, taxLevel, searchList):
+    '''
+    given a weight, label, taxonomic Level of the label, and the searchlist iten from ranker,
+    returns the top match donor rank object
+    '''
     dict = searchList[TaxPyramid.index(taxLevel)]
     pq = dict[value]
     if weight>0:
@@ -96,6 +102,10 @@ def topMatch(weight, value, taxLevel, searchList):
     return match
 
 def topKMatches(weight, value, taxLevel, searchList):
+    '''
+    given a weight, label, taxonomic Level of the label, and the searchlist item from ranker,
+    returns a list of ranked donors for ALL donors with sequences INCLUDING ZERO VALUES
+    '''
     dictItem = searchList[TaxPyramid.index(taxLevel)]
     if not dictItem.has_key(value):
         return []
@@ -119,6 +129,11 @@ def topKMatches(weight, value, taxLevel, searchList):
     return returnList
         
 def search(searchDict, donors):
+    '''
+    takes in a dictionary of searches formatted as such {label: (taxLevel, weight)} ie {Firmicutes: (Phylumn, 2)}
+    returns list of lists with each list in the overall structure containing the searches in order
+
+    '''
     searchList = ranker(donors)
     result = []
     weights = []
@@ -154,6 +169,9 @@ def search(searchDict, donors):
     return result
         
 def SCFAranker(donors, fattyAcid, weight):
+    '''
+    given a fattAcid, returns a list of ordered donor objects w.r.t that fatty acid
+    '''
     fattyAcidPQ = PriorityQueue()
     for donor in donors:  
         acidData = donor.shortChainFattyAcids
@@ -174,6 +192,10 @@ def SCFAranker(donors, fattyAcid, weight):
         return reverseList
         
 def fattyAcidSearcher(donors, searchList):
+    '''
+    given a bunch of searches in a list: [(acid1, weight1), (acid2, weight2)] 
+    returns list of lists with each list corresponding to search results in order
+    '''
     searchResult = []
     for searchTup in searchList:
         acid = searchTup[0]
@@ -183,6 +205,10 @@ def fattyAcidSearcher(donors, searchList):
     return searchResult
     
 def listDonorRankSearcher(donorList, donorID):
+    '''
+    given a list of donors and a desired donorID, returns true if donorList contains an object with donorID
+    otherwise returns false
+    '''
     for donor in donorList:
         if donor.idNumber == donorID:
             return True
