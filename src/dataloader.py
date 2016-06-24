@@ -5,14 +5,15 @@ from sequence import Node, sequenceObject
 import csv
 from profile import Donor
 import Queue, sets
-from UniverseGUI import raiseFileError
+from DonorUniverseGUI_4 import quitApp, raiseFileError
+
 
 taxonomicMap = [] ##global taxonomic Map 
 donors=[] ##global list of donors
 sdiAverage = 0
 jsdAverage = 0
 fprowAverage = 0
-totalSCFAAverage = 0
+totalSCFAAverage = 100
 
 def loadSequenceData():
     '''
@@ -106,9 +107,15 @@ def donorInitiator(databaseDirectory):
     it returns a list of donor objects with appropriate donorIDs, 16s data, and SCFA data
     order is in the same provided in the donorList.csv file
     '''
-
+    
     #Change to database directory and check for correct files, if they aren't there try again
-    os.chdir(str(databaseDirectory))
+    try:
+        os.chdir(str(databaseDirectory))
+    except OSError:
+        print "hey"
+        quitApp()
+    except:
+        quitApp()
     fileListCWD = os.listdir(os.getcwd())
     DonorFile = 'DonorListSample.csv'
     OTUtable = 'OTUtable.txt'
@@ -143,9 +150,8 @@ def donorInitiator(databaseDirectory):
     
     #load sequence data and map it
     donorSequences = loadSequenceData()  
-    taxMap = taxMapper(donorSequences)
-    global taxonomicMap
-    taxonomicMap.extend(taxMap)
+    taxMapper(donorSequences)
+
     
     #load SCFA Data and assign it to appropriate donors
     fattyAcidData = loadSCFAData()
@@ -153,6 +159,9 @@ def donorInitiator(databaseDirectory):
         if fattyAcidData.has_key(donor.donorID):
             donor.shortChainFattyAcids = fattyAcidData[donor.donorID]
             donor.countTotalScfa()
+    #set SCFA Average
+    setSCFAAverage(donorList)
+    
     #assign all sequences to appropriate donors (not efficient but n is small)
     for donor in donorList:
         for donorSequence in donorSequences:
@@ -197,6 +206,8 @@ def taxMapper(sequences):
             ## goes through list of children and adds them to the children set in dictionary       
             for child in childList:
                 childSet.add(child)
+    global taxonomicMap
+    taxonomicMap = taxMap
     return taxMap
 
 def loadSCFAData():
@@ -232,6 +243,23 @@ def loadSCFAData():
         SCFAdict[donorID] = acidData
         
     return SCFAdict  
+
+def setSCFAAverage(donors):
+    '''
+    This function goes through a list of donors, adds all the total SCFA counts if they aren't zero,
+    and averages them. It then assigns it to the global variable totalSCFAaverage
+    '''
+    sumSCFA = 0.0
+    count = 0
+    for donor in donors:
+        donorSCFAtotal = donor.getTotalSCFA()
+        if donorSCFAtotal > 0:
+            sumSCFA = sumSCFA + donorSCFAtotal
+            count = count+1
+    global totalSCFAAverage
+    totalSCFAAverage = sumSCFA/count
+
+    
             
 
         

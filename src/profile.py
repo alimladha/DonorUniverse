@@ -13,7 +13,7 @@ genderDict = {'Male': 'm', 'Female': 'f'}
 class Donor:
     def __init__(self, donorID):
         self.donorID = donorID
-        self.clinicalInfo = None
+        self.clinicalInfo = {'Abnormal Lab Results': '', 'Clinical Notes': '', 'Allergies': '', 'Diet': '', 'Other': ''}
         self.sequences = []
         self.shortChainFattyAcids={}
         self.productionRate = 0
@@ -30,6 +30,7 @@ class Donor:
         self.jsd = 0
         self.fprow = 0
         self.totalSCFA = 0.0
+        self.screeningGroup = ''
         
     def countTotalScfa(self):
         '''
@@ -40,5 +41,63 @@ class Donor:
             value = self.shortChainFattyAcids[acid]
             sumVal=sumVal+value
         self.totalSCFA = sumVal
+        
+    def getDonorID(self):
+        return self.donorID
+    
+    def getClinicalInfo(self):
+        return self.clinicalInfo
+    
+    def getSequences(self):
+        return self.sequences
+    
+    def getShortChainFattyAcids(self):
+        return self.shortChainFattyAcids
+    
+    def getProductionRate(self):
+        return self.productionRate
+    
+    def getSafetyRating(self):
+        return self.safetyRating
+    
+    def getCurrentStudies(self):
+        return self.safetyRating
+    
+    def getBMI(self):
+        return self.bmi
+    
+    def getWaistCircumference(self):
+        return self.waistCircumference
+      
+    def getAge(self):
+        return self.age
+    
+    def getGender(self):
+        return self.gender
+    
+    def getProcessingStatus(self):
+        return self.processingStatus
+    
+    def getShippingStatus(self):
+        return self.shippingStatus
+    
+    def getMaterialAvailable(self):
+        return self.materialAvailable
+    
+    def getSDI(self):
+        return self.sdi
+    def getJSD(self):
+        return self.jsd
+    
+    def getFPROW(self):
+        return self.fprow
+    
+    def getTotalSCFA(self):
+        return self.totalSCFA 
+     
+    def getScreeningGroup(self):
+        return self.screeningGroup
+    
+    
     
     

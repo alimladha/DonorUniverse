@@ -1,3 +1,0 @@
-([('UniverseGUI',
-   '/Users/alim/GitHub/DonorUniverseGit/src/dist/UniverseGUI',
-   'EXECUTABLE')],)

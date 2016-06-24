@@ -11,7 +11,6 @@ import dataloader
 from sequence import TaxPyramid
 import search
 import collections
-from test.test_binop import isint
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -735,6 +734,24 @@ class Ui_Form(object):
     def searchDonors(self):
         answers = self.getFormInfo()
         donorResults = search.findMatches(self, answers, donors)
+        displayCurrentStudies = answers[self.currentStudiesCheck]
+        displayProductionRate = answers[self.prodRateCheck]
+        headerBoxes = ['DonorID', self.safetyRatingCheck, self.bmiCheck, self.waistCheck, self.ageCheck,
+                       self.genderCheck, self.processStatusCheck, self.shippingCheck, self.materialCheck, 
+                       self.sdiCheck, self.jsdCheck, self.fprowCheck, self.totalSCFACheck]
+        if displayCurrentStudies:
+            headerBoxes.append(self.currentStudiesCheck)
+        if displayProductionRate:
+            headerBoxes.append(self.prodRateCheck)
+        search.displayHeaders(self.tableWidgetDonor, headerBoxes)
+        for donor in donorResults:
+            headerToFunc = {'DonorID': donor.getDonorID, self.safetyRatingCheck: donor.getSafetyRating, self.bmiCheck: donor.getBMI, 
+                            self.waistCheck: donor.getWaistCircumference, self.ageCheck: donor.getAge,
+                            self.genderCheck: donor.getGender, self.processStatusCheck: donor.getProcessingStatus,
+                            self.shippingCheck: donor.getShippingStatus, self.materialCheck: donor.getMaterialAvailable,
+                            self.sdiCheck: donor.getSDI, self.jsdCheck: donor.getJSD, self.fprowCheck: donor.getFPROW,
+                            self.totalSCFACheck: donor.getTotalSCFA}
+            search.displayDonors(self.tableWidgetDonor, headerBoxes, headerToFunc)
         
     def getFormInfo(self):
         formFields = [self.safetyRatingCheck, self.safetyRatingCombo, self.currentStudiesCheck, self.bmiCheck, 
@@ -743,7 +760,7 @@ class Ui_Form(object):
                      self.ageLLSpin, self.genderCheck, self.maleRadio, self.femaleRadio, self.processStatusCheck,
                      self.processStatusCombo, self.shippingCheck, self.shippingCombo, self.materialCheck,
                      self.materialTypeCombo_1, self.materialTypeCombo_2, self.materialTypeCombo_3, self.unitsSpin_1,
-                     self.unitsSpin_2, self.unitsSpin_3, self.sdiCheck, self.sdiCombo, self.jsdCheck, self.jsdCombo,
+                     self.unitsSpin_2, self.unitsSpin_3, self.prodRateCheck, self.sdiCheck, self.sdiCombo, self.jsdCheck, self.jsdCombo,
                      self.fprowCheck, self.fprowCombo, self.totalSCFACheck, self.totalSCFACombo]
         formAnswer={}
         for field in formFields:

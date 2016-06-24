@@ -7,7 +7,8 @@ from functools import total_ordering
 from sequence import TaxPyramid
 import math
 from PyQt4 import QtCore, QtGui
-from dataloader import sdiAverage,jsdAverage,fprowAverage, totalSCFAAverage
+import dataloader
+from __builtin__ import int
 
 donorsWithSequences = [] ##global variable with all donors who have sequence Data
 SafetyRatings={'Approved': 1, 'Conditional': 2, 'Restricted': 3, 'Rejected': 4, 'Conditional or better':5, 'Restricted or better': 6}
@@ -63,7 +64,6 @@ def ranker(donors):
     del donorsWithSequences[:]
     for donor in donors:
         if donor.sequences:
-            global donorsWithSequences
             donorsWithSequences.append(donor.donorID)
             for sequenceData in donor.sequences:
                 sequences.append(sequenceData)
@@ -219,6 +219,9 @@ def listDonorRankSearcher(donorList, donorID):
 def findMatches(form, answers, donors):
     donorMatches = []
     for donor in donors:
+        if(answers[form.donorCheck]):
+            if not answers[form.donorSpin] == donor.getDonorID():
+                continue
         if(answers[form.safetyRatingCheck]):
             if not isSafe(answers[form.safetyRatingCombo], donor):
                 continue
@@ -266,15 +269,27 @@ def findMatches(form, answers, donors):
             typVal = [(type_1,val_1), (type_2, val_2), (type_3, val_3)]
             if not materialCheck(typVal, donor):
                 continue
-                
+        if(answers[form.screeningGroupCheck]):
+            if not screenGroupCheck(answers[form.screeningGroupCheck], donor):
+                continue        
         if(answers[form.sdiCheck]):
             respectToAverage = answers[form.sdiCombo]
-            if not averageCheck(respectToAverage, sdiAverage, donor.sdi):
+            if not averageCheck(respectToAverage, dataloader.sdiAverage, donor.sdi):
                 continue
         if(answers[form.jsdCheck]):
             respectToAverage = answers[form.jsdCombo]
-            if not averageCheck(respectToAverage, jsdAverage, donor.jsd):
+            if not averageCheck(respectToAverage, dataloader.jsdAverage, donor.jsd):
                 continue
+        if(answers[form.fprowCheck]):
+            respectToAverage = answers[form.fprowCombo]
+            if not averageCheck(respectToAverage, dataloader.fprowAverage, donor.fprow):
+                continue
+        if(answers[form.totalSCFACheck]):
+            respectToAverage = answers[form.totalSCFACombo]
+            if not averageCheck(respectToAverage, dataloader.totalSCFAAverage, donor.totalSCFA):
+                continue
+        donorMatches.append(donor)
+    return donorMatches
         
 def isSafe(safetyRating, donor):
     safetyRatingNum = SafetyRatings[safetyRating]
@@ -346,13 +361,68 @@ def averageCheck(respectToAverage, average, value):
         return value>average
     elif respectToAverage == 'Below Average':
         return value<average
+    
+def screenGroupCheck(group, donor):
+    return group == donor.getScreeningGroup()
         
             
         
+def displayDonors(table, headerBoxes, headerToFuncDict, clinicalInformationCheckbox):
+    colCounter = 0
+    rowCount = int(table.rowCount())
+    table.insertRow(rowCount)
+    for header in headerBoxes:
+        if header == clinicalInformationCheckbox:
+            if clinicalInformationCheckbox.isChecked():
+                headerList = ['Abnormal Lab Results', 'Clinical Notes', 'Allergies', 'Diet', 'Other' ]
+                infoFunc = headerToFuncDict[header] 
+                info = infoFunc() 
+                for headerString in headerList:
+                    item = QtGui.QTableWidgetItem()
+                    stringInfo = ''
+                    if info.has_key(headerString):
+                        stringInfo = info[headerString]
+                    item.setText(QtCore.QString(stringInfo))
+                    table.setItem(rowCount,colCounter, item)
+                    colCounter = colCounter+1
+            continue
+        item = QtGui.QTableWidgetItem()
+        donorFunc = headerToFuncDict[header]
+        if isinstance(donorFunc(), int) or isinstance(donorFunc(), float):
+            item.setData(QtCore.Qt.DisplayRole, donorFunc())
+        else:
+            displayString = str(donorFunc()) 
+            item.setText(QtCore.QString(displayString))
+        table.setItem(rowCount, colCounter, item)
+        colCounter = colCounter + 1 
+    table.resizeColumnsToContents()
     
-
-        
+def displayHeaders(table, headers, clinicalInformationCheckbox):
+    table.setColumnCount(len(headers)-1)
+    colCounter = 0
+    for header in headers:
+        if header == clinicalInformationCheckbox:
+            print "heyX2"
+            if clinicalInformationCheckbox.isChecked():
+                curColCount = int(table.columnCount())
+                newColCount = curColCount+5
+                table.setColumnCount(newColCount)
+                headerList = ['Abnormal Lab Results', 'Clinical Notes', 'Allergies', 'Diet', 'Other' ]
+                for headerString in headerList:
+                    item = QtGui.QTableWidgetItem()
+                    item.setText(QtCore.QString(headerString))
+                    table.setHorizontalHeaderItem(colCounter, item)
+                    colCounter = colCounter+1
+            continue
+        item = QtGui.QTableWidgetItem()
+        if isinstance(header, str):
+            item.setText(QtCore.QString(header))
+        elif isinstance(header, QtGui.QCheckBox):
+            item.setText(header.text())
+        table.setHorizontalHeaderItem(colCounter, item)
+        colCounter = colCounter + 1
     
+            
     
     
     
