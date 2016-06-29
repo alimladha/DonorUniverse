@@ -16,6 +16,7 @@ LocalButton = 1
 YesButton = 0
 NoButton = 1
 import time
+import file_setter
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -128,7 +129,7 @@ if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
     app.setStyleSheet(qdarkstyle.load_stylesheet(pyside=False))
-    pixmap = QtGui.QPixmap(QtCore.QString("images/DonorUniverseSplash.png"))
+    pixmap = QtGui.QPixmap(QtCore.QString(file_setter.resource_path("DonorUniverseSplash.png")))
     splashScreen= QtGui.QSplashScreen(pixmap)
     splashScreen.show()
     time.sleep(4)

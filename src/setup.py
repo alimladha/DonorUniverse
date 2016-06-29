@@ -7,8 +7,8 @@ Usage:
 
 from setuptools import setup
 
-APP = ['intro_2.py']
-DATA_FILES = ['/Users/alim/GitHub/DonorUniverseGit/images']
+APP = ['googleDataSearcher.py']
+DATA_FILES = ['/Users/alim/GitHub/DonorUniverseGit/images', '/Users/alim/GitHub/DonorUniverseGit/src/credentials.json']
 OPTIONS = {'argv_emulation': False,'iconfile': '/Users/alim/Downloads/DonorUniverseLogo.png.icns'}
 
 setup(

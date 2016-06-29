@@ -7,7 +7,7 @@ import Queue, sets
 import pandas as pd
 from PyQt4 import QtCore, QtGui
 import sys
-import sets
+import googleDataSearcher
 
 
 taxonomicMap = [] ##global taxonomic Map 
@@ -110,8 +110,13 @@ def donorInitiator( driveData, otherData, databaseDirectory = None):
     it returns a list of donor objects with appropriate donorIDs, 16s data, and SCFA data
     order is in the same provided in the donorList.csv file
     '''
+    credentialCWD = os.getcwd()
     if databaseDirectory == None:
-        databaseDirectory = '/Users/alim/GitHub/DonorUniverseGit/Databases'
+        returnValue = googleDataSearcher.loadDonorData()
+        global screeningGroups
+        screeningGroups = returnValue[0]
+        donors = returnValue[1]
+        return donors
     #Change to database directory and check for correct files, if they aren't there try again
     try:
         os.chdir(str(databaseDirectory))
@@ -120,6 +125,7 @@ def donorInitiator( driveData, otherData, databaseDirectory = None):
     except:
         sys.exit()
     fileListCWD = os.listdir(os.getcwd())
+    fileCWD = os.getcwd()
     OTUtable = 'OTUtable.txt'
     SCFAData = 'SCFAtable.csv'
     DonorInfoFile = 'DonorData.xlsx'
@@ -133,11 +139,20 @@ def donorInitiator( driveData, otherData, databaseDirectory = None):
         requiredFiles.append(OTUtable)
         requiredFiles.append(SCFAData)
         
-    for file in requiredFiles:
-        if not file in fileListCWD:
+    for requiredFile in requiredFiles:
+        if not requiredFile in fileListCWD:
             newDirectory = raiseFileError()
             donorInitiator(driveData, otherData, newDirectory)
             break
+    
+    if driveData == True:
+        os.chdir(credentialCWD)
+        returnValue = googleDataSearcher.loadDonorData()
+        os.chdir(fileCWD)
+        global screeningGroups
+        screeningGroups = returnValue[0]
+        donors = returnValue[1]
+        return donors
          
     #get donors from DonorInfoFile, and collect metadata
     table = pd.read_excel(DonorInfoFile)
