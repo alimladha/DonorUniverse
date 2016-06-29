@@ -7,9 +7,9 @@ Usage:
 
 from setuptools import setup
 
-APP = ['DonorUniverseGUI_4.py']
-DATA_FILES = []#[('', ['/Users/alim/GitHub/DonorUniverseGit/images'])]
-OPTIONS = {'argv_emulation': True}
+APP = ['intro_2.py']
+DATA_FILES = ['/Users/alim/GitHub/DonorUniverseGit/images']
+OPTIONS = {'argv_emulation': False,'iconfile': '/Users/alim/Downloads/DonorUniverseLogo.png.icns'}
 
 setup(
     app=APP,

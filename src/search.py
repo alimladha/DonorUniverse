@@ -236,7 +236,7 @@ def findMatches(form, answers, donors):
             wantLL = answers[form.waistLLCheck]
             wantUL = answers[form.waistULCheck]
             ll = answers[form.waistLLSpin]
-            ul = answers[form.wasitULSpin]
+            ul = answers[form.waistULSpin]
             if not meetsRange(wantLL, ll, wantUL, ul, donor.waistCircumference):
                 continue
         if(answers[form.ageCheck]):
@@ -270,7 +270,7 @@ def findMatches(form, answers, donors):
             if not materialCheck(typVal, donor):
                 continue
         if(answers[form.screeningGroupCheck]):
-            if not screenGroupCheck(answers[form.screeningGroupCheck], donor):
+            if not screenGroupCheck(answers[form.screeningGroupCombo], donor):
                 continue        
         if(answers[form.sdiCheck]):
             respectToAverage = answers[form.sdiCombo]
@@ -300,6 +300,8 @@ def isSafe(safetyRating, donor):
     elif safetyRatingNum == 6:
         return donor.safetyRating < 4
 def meetsRange(wantLL, ll, wantUL, ul, donorValue):
+    if donorValue == None:
+        return False
     if wantLL == False and wantUL == False:
         raiseLimitError()
     if wantLL and wantUL:
@@ -325,9 +327,9 @@ def rightGender(wantMale, wantFemale, gender):
         error.exec_()
         raise ValueError('Gender not selected')   
     elif wantMale:
-        return gender == 'm'
+        return gender == 'Male'
     elif wantFemale:
-        return gender =='f' 
+        return gender =='Female' 
     
 def processCheck(status, donor):
     return donor.processingStatus == status
@@ -363,6 +365,8 @@ def averageCheck(respectToAverage, average, value):
         return value<average
     
 def screenGroupCheck(group, donor):
+    print group
+    print donor.getScreeningGroup()
     return group == donor.getScreeningGroup()
         
             
@@ -389,12 +393,15 @@ def displayDonors(table, headerBoxes, headerToFuncDict, clinicalInformationCheck
         item = QtGui.QTableWidgetItem()
         donorFunc = headerToFuncDict[header]
         if isinstance(donorFunc(), int) or isinstance(donorFunc(), float):
-            item.setData(QtCore.Qt.DisplayRole, donorFunc())
+            value = donorFunc()
+            item.setData(QtCore.Qt.DisplayRole, value)
+            item.setText(QtCore.QString(str(value)))
         else:
             displayString = str(donorFunc()) 
             item.setText(QtCore.QString(displayString))
         table.setItem(rowCount, colCounter, item)
         colCounter = colCounter + 1 
+    exampleData = table.itemAt(1,0).data(QtCore.Qt.DisplayRole)
     table.resizeColumnsToContents()
     
 def displayHeaders(table, headers, clinicalInformationCheckbox):
@@ -402,7 +409,6 @@ def displayHeaders(table, headers, clinicalInformationCheckbox):
     colCounter = 0
     for header in headers:
         if header == clinicalInformationCheckbox:
-            print "heyX2"
             if clinicalInformationCheckbox.isChecked():
                 curColCount = int(table.columnCount())
                 newColCount = curColCount+5

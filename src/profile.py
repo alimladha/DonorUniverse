@@ -8,7 +8,9 @@
 
 '''
 
-genderDict = {'Male': 'm', 'Female': 'f'}
+genderDict = {'m': 'Male', 'f': 'Female', 'M': 'Male', 'F': 'Female'}
+SafetyRatings={'approved': 1, 'conditional': 2, 'restricted': 3, 'rejected': 4}
+import pandas as pd
 
 class Donor:
     def __init__(self, donorID):
@@ -17,11 +19,11 @@ class Donor:
         self.sequences = []
         self.shortChainFattyAcids={}
         self.productionRate = 0
-        self.safetyRating = 0
+        self.safetyRating = ''
         self.currentStudies = 0
-        self.bmi=0
-        self.waistCircumference = 0
-        self.age = 0
+        self.bmi=None
+        self.waistCircumference = None
+        self.age = None
         self.gender = 'f'
         self.processingStatus = ''
         self.shippingStatus = ''
@@ -42,11 +44,36 @@ class Donor:
             sumVal=sumVal+value
         self.totalSCFA = sumVal
         
+    def addInfo(self, infoDict):
+        dictkeys = {'Safety Rating': self.setSafetyRating, 'Group': self.setScreeningGroup, 
+                    'BMI': self.setBMI, 'WC': self.setWaistCircumference, 'Age': self.setAge, 'Gender': self.setGender, 
+                    'Abnormal Lab Results': self.setClinicalInfo, 
+                    'Clinical Notes': self.setClinicalInfo, 
+                    'Allergies':self.setClinicalInfo, 'Diet': self.setClinicalInfo, 'Other': self.setClinicalInfo}
+        for key in dictkeys.keys():
+            if infoDict.has_key(key):
+                dictVal = infoDict[key]
+                if isinstance(dictVal, unicode):
+                    dictVal = str(dictVal)
+                if pd.isnull(dictVal):
+                    continue
+                setFunc = dictkeys[key]
+                if setFunc == self.setClinicalInfo:
+                    setFunc(key, dictVal)
+                else:
+                    setFunc(dictVal)
+        
     def getDonorID(self):
         return self.donorID
+
     
     def getClinicalInfo(self):
         return self.clinicalInfo
+    
+    def setClinicalInfo(self, key, val):
+        if not self.clinicalInfo.has_key(key):
+            return
+        self.clinicalInfo[key]=val
     
     def getSequences(self):
         return self.sequences
@@ -58,25 +85,52 @@ class Donor:
         return self.productionRate
     
     def getSafetyRating(self):
-        return self.safetyRating
+        safetyNum = self.safetyRating
+        for key,value in SafetyRatings.items():
+            if value == safetyNum:
+                return key
+    
+    def setSafetyRating(self, val):
+        val=val.lower()
+        if SafetyRatings.has_key(val):
+            self.safetyRating = SafetyRatings[val]
     
     def getCurrentStudies(self):
         return self.safetyRating
     
+    def setCurrentStudies(self, val):
+        self.currentStudies = val
+    
     def getBMI(self):
         return self.bmi
     
+    def setBMI(self, val):
+        self.bmi = val
+    
     def getWaistCircumference(self):
         return self.waistCircumference
+    
+    def setWaistCircumference(self, val):
+        self.waistCircumference = val
       
     def getAge(self):
         return self.age
     
+    def setAge(self, val):
+        self.age = val
+        
     def getGender(self):
         return self.gender
     
+    def setGender(self, val):
+        if genderDict.has_key(val):
+            self.gender = genderDict[val]
+    
     def getProcessingStatus(self):
         return self.processingStatus
+    
+    def setProcessingStatus(self, val):
+        self.processingStatus = val
     
     def getShippingStatus(self):
         return self.shippingStatus
@@ -98,6 +152,8 @@ class Donor:
     def getScreeningGroup(self):
         return self.screeningGroup
     
+    def setScreeningGroup(self, val):
+        self.screeningGroup = val    
     
     
     

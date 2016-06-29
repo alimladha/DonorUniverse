@@ -5,7 +5,6 @@
 # Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
-
 from PyQt4 import QtCore, QtGui
 #added Code
 import dataloader
@@ -13,7 +12,8 @@ from sequence import TaxPyramid
 import search
 import collections
 import time
-import os
+import qdarkstyle
+from dataloader import taxonomicMap
 
 #added Code
 
@@ -108,7 +108,7 @@ class Ui_Form(object):
         self.sdiCheck.setObjectName(_fromUtf8("sdiCheck"))
         self.horizontalLayout_2.addWidget(self.sdiCheck)
         self.sdiCombo = QtGui.QComboBox(self.scrollAreaWidgetContents_3)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sdiCombo.sizePolicy().hasHeightForWidth())
@@ -166,7 +166,7 @@ class Ui_Form(object):
         self.jsdCheck.setObjectName(_fromUtf8("jsdCheck"))
         self.horizontalLayout.addWidget(self.jsdCheck)
         self.jsdCombo = QtGui.QComboBox(self.scrollAreaWidgetContents_3)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.jsdCombo.sizePolicy().hasHeightForWidth())
@@ -190,7 +190,7 @@ class Ui_Form(object):
         self.fprowCheck.setObjectName(_fromUtf8("fprowCheck"))
         self.horizontalLayout_3.addWidget(self.fprowCheck)
         self.fprowCombo = QtGui.QComboBox(self.scrollAreaWidgetContents_3)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.fprowCombo.sizePolicy().hasHeightForWidth())
@@ -322,7 +322,7 @@ class Ui_Form(object):
         self.totalSCFACheck.setObjectName(_fromUtf8("totalSCFACheck"))
         self.horizontalLayout_4.addWidget(self.totalSCFACheck)
         self.totalSCFACombo = QtGui.QComboBox(self.scrollAreaWidgetContents_3)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.totalSCFACombo.sizePolicy().hasHeightForWidth())
@@ -534,7 +534,7 @@ class Ui_Form(object):
         self.jsdCombo.setItemText(0, _translate("Form", "Above Average", None))
         self.jsdCombo.setItemText(1, _translate("Form", "Below Average", None))
         self.logisticsHeader.setText(_translate("Form", "Logistics:", None))
-        self.fprowCheck.setText(_translate("Form", "F Prow", None))
+        self.fprowCheck.setText(_translate("Form", "Other", None))
         self.fprowCombo.setItemText(0, _translate("Form", "Above Average", None))
         self.fprowCombo.setItemText(1, _translate("Form", "Below Average", None))
         self.safetyRatingCheck.setText(_translate("Form", "Safety Rating", None))
@@ -547,7 +547,6 @@ class Ui_Form(object):
         newQStringList.append(QtCore.QString('Conditional or better'))
         newQStringList.append(QtCore.QString('Restricted or better'))
         self.safetyRatingCombo.addItems(newQStringList)
-        self.tableWidgetDonor.setSortingEnabled(True)
         #added Code
         self.waistLLCheck.setText(_translate("Form", "Lower Limit", None))
         self.waistULCheck.setText(_translate("Form", "Upper Limit", None))
@@ -613,6 +612,11 @@ class Ui_Form(object):
         self.donorPoolLabel.setText(_translate("Form", "All Donors", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Form", "16S and SCFA Search", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Form", "Logistics Search", None))
+        #added codes
+        screeningGroupList = QtCore.QStringList()
+        for group in dataloader.screeningGroups:
+            screeningGroupList.append(QtCore.QString(group))
+        self.screeningGroupCombo.addItems(screeningGroupList)
 
     def addSearchRow(self):
         box = QtGui.QSpinBox()
@@ -674,9 +678,14 @@ class Ui_Form(object):
     def updateKingdoms(self, rowNum):
         kingdomCol = 1
         widget = self.tableWidget.cellWidget(rowNum, kingdomCol)
-        kingdoms = dataloader.taxonomicMap[0].keys()
-        QtKingdoms = listToQstringList(kingdoms)
-        widget.addItems(QtKingdoms) 
+        if dataloader.taxonomicMap == False:
+            return
+        try:
+            kingdoms = dataloader.taxonomicMap[0].keys()
+            QtKingdoms = listToQstringList(kingdoms)
+            widget.addItems(QtKingdoms) 
+        except:
+            return
         
     def updateNextColumn(self, text, row, col):
         if col+1 < self.tableWidget.columnCount():
@@ -766,6 +775,8 @@ class Ui_Form(object):
                 if(boxWidget.currentText()==''):
                     level = prevCol-1
                     boxWidget = self.tableWidget.cellWidget(row, prevCol)
+                    if not isinstance(boxWidget, QtGui.QComboBox):
+                        return
                     value = str(boxWidget.currentText())
                     break
             if not searchDict.has_key(value):
@@ -780,6 +791,8 @@ class Ui_Form(object):
         scfaList = []
         for row in range(0, self.tableWidget_SCFA.rowCount()):
             scfaLabel = str(self.tableWidget_SCFA.cellWidget(row, 0).currentText())
+            if scfaLabel == '':
+                return
             scfaWeight = int(self.tableWidget_SCFA.cellWidget(row, 1).value())
             if scfaWeight==0:
                 errorZero = QtGui.QErrorMessage()
@@ -798,7 +811,7 @@ class Ui_Form(object):
     def searchDonors(self):
         resetResultsTable(self.tableWidgetDonor)
         answers = self.getFormInfo()
-        donorResults = search.findMatches(self, answers, donors)
+        donorResults = search.findMatches(self, answers, allDonors)
         global donorSearchResults
         donorSearchResults = donorResults
         displayCurrentStudies = answers[self.currentStudiesCheck]
@@ -822,12 +835,11 @@ class Ui_Form(object):
                             self.screeningGroupCheck: donor.getScreeningGroup}
             search.displayDonors(self.tableWidgetDonor, headerBoxes, headerToFunc, self.clinicalInfoCheck)
         self.scrollArea.verticalScrollBar().setValue(self.scrollArea.verticalScrollBar().maximum())
-        
     def getFormInfo(self):
         formFields = [self.clinicalInfoCheck, self.screeningGroupCheck, self.screeningGroupCombo, self.donorCheck, self.donorSpin, self.safetyRatingCheck, self.safetyRatingCombo, self.currentStudiesCheck, self.bmiCheck, 
                      self.bmiULcheck, self.bmiULSpin, self.bmiLLCheck, self.bmiLLSpin, self.waistCheck, self.waistULCheck, 
                      self.waistULSpin, self.waistLLCheck, self.waistLLSpin, self.ageCheck, self.ageULCheck, self.ageLLCheck,
-                     self.ageLLSpin, self.genderCheck, self.maleRadio, self.femaleRadio, self.processStatusCheck,
+                     self.ageLLSpin, self.ageULSpin, self.genderCheck, self.maleRadio, self.femaleRadio, self.processStatusCheck,
                      self.processStatusCombo, self.shippingCheck, self.shippingCombo, self.materialCheck,
                      self.materialTypeCombo_1, self.materialTypeCombo_2, self.materialTypeCombo_3, self.unitsSpin_1,
                      self.unitsSpin_2, self.unitsSpin_3, self.prodRateCheck, self.sdiCheck, self.sdiCombo, self.jsdCheck, self.jsdCombo,
@@ -894,6 +906,7 @@ def listToQstringList(inputList):
     return qlist
 def getSCFAComboBox():
     #get a list of SCFA
+    dictSCFA = {}
     for donor in donorList:
         if donor.shortChainFattyAcids:
             dictSCFA = donor.shortChainFattyAcids
@@ -938,25 +951,33 @@ def resetResultsTable(table):
 def quitApp():
     QtGui.QApplication.quit()
     
-if __name__ == "__main__":
-    import sys
-    app = QtGui.QApplication(sys.argv)
-    Form = QtGui.QWidget()
+    
+def openActualWindow(self, driveData, otherData):
+    #import sys
+    #app = QtGui.QApplication(sys.argv)
+    self.Form_2 = QtGui.QWidget()
+    #app.setStyleSheet(qdarkstyle.load_stylesheet(pyside=False))
     #pixmap = QtGui.QPixmap(QtCore.QString("../images/DonorUniverseSplash.png"))
     #splashScreen= QtGui.QSplashScreen(pixmap)
-    #plashScreen.show()
+    #splashScreen.show()
     #time.sleep(4)
-    #splashScreen.finish(Form);
-    databaseDirectory = showFileOpener()
-    donors = dataloader.donorInitiator(databaseDirectory)
+    #splashScreen.finish(Form_2);
+    if driveData == False or otherData == True:
+        databaseDirectory = showFileOpener()
+        donors = dataloader.donorInitiator(driveData, otherData, databaseDirectory)
+    else:
+        donors = dataloader.donorInitiator(driveData = driveData, otherData = otherData)
+    if otherData == True:
+        dataloader.loadOtherData(donors)
+    
     global donorList
     global allDonors
     donorList = donors
     allDonors = donors
     ui = Ui_Form()
-    ui.setupUi(Form)
-    Form.show()
-    Form.raise_()
-
-    sys.exit(app.exec_())
+    ui.setupUi(self.Form_2)
+    self.Form_2.show()
+    self.Form_2.activateWindow()
+    self.Form_2.raise_()
+    #sys.exit(app.exec_())
 

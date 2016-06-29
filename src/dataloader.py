@@ -2,14 +2,17 @@ import os
 import numpy as np
 import sequence
 from sequence import Node, sequenceObject
-import csv
 from profile import Donor
 import Queue, sets
-from DonorUniverseGUI_4 import quitApp, raiseFileError
+import pandas as pd
+from PyQt4 import QtCore, QtGui
+import sys
+import sets
 
 
 taxonomicMap = [] ##global taxonomic Map 
 donors=[] ##global list of donors
+screeningGroups =sets.Set() ##global set of all screening groups
 sdiAverage = 0
 jsdAverage = 0
 fprowAverage = 0
@@ -101,57 +104,69 @@ def countCalculator(head):
         head.count = sumVal
 
 
-def donorInitiator(databaseDirectory):
+def donorInitiator( driveData, otherData, databaseDirectory = None):
     '''
     This function intitiates all the donor objects pointed to the database passed in
     it returns a list of donor objects with appropriate donorIDs, 16s data, and SCFA data
     order is in the same provided in the donorList.csv file
     '''
-    
+    if databaseDirectory == None:
+        databaseDirectory = '/Users/alim/GitHub/DonorUniverseGit/Databases'
     #Change to database directory and check for correct files, if they aren't there try again
     try:
         os.chdir(str(databaseDirectory))
     except OSError:
-        print "hey"
-        quitApp()
+        sys.exit()
     except:
-        quitApp()
+        sys.exit()
     fileListCWD = os.listdir(os.getcwd())
-    DonorFile = 'DonorListSample.csv'
     OTUtable = 'OTUtable.txt'
     SCFAData = 'SCFAtable.csv'
-    requiredFiles = [DonorFile, OTUtable, SCFAData]
+    DonorInfoFile = 'DonorData.xlsx'
+    
+    requiredFiles = []
+    
+    if driveData == False:
+        requiredFiles.append(DonorInfoFile)
+    
+    if otherData == True:
+        requiredFiles.append(OTUtable)
+        requiredFiles.append(SCFAData)
+        
     for file in requiredFiles:
         if not file in fileListCWD:
             newDirectory = raiseFileError()
-            donorInitiator(newDirectory)
+            donorInitiator(driveData, otherData, newDirectory)
             break
-    
-    #open donor ID list
-    donorCSV=open('DonorListSample.csv', 'r')
-    csvDonorReader= csv.reader(donorCSV, dialect=csv.excel_tab)
-    
-    #get list of donor numbers
-    rownum = 0;
+         
+    #get donors from DonorInfoFile, and collect metadata
+    table = pd.read_excel(DonorInfoFile)
     donorNumList = []
-    for row in csvDonorReader:
-        rowInfo = row[0].split(',')
-        if rownum == 0:
-            donorHeader = row[0]
-        else:
-            donorNumList.append(int(rowInfo[0]))
-        rownum+=1
+    infoArrays = []
+    for row in table.itertuples():
+        donorNumList.append(row.Donor)
+        infoDict = {'Safety Rating': row.SafetyRating, 'Group': row.Group, 'BMI': row.BMI, 'WC': row.WC,
+                    'Age': row.Age, 'Gender': row.Gender, 'Abnormal Lab Results': row.AbnormalLabResults, 
+                    'Clinical Notes': row.ClinicalNotes, 'Allergies': row.Allergies, 'Diet': row.Diet,
+                    'Other' :row.Other}
+        global screeningGroups
+        if not pd.isnull(row.Group):
+            screeningGroups.add(str(row.Group))
+        infoArrays.append(infoDict)
         
-    #create list of donor objects based on donor number list
+    #create list of donor objects based on donor number list, add appropriate data
     donorList=[]
-    for donorNum in donorNumList:
+    for donorNum, donorInfo in zip(donorNumList,infoArrays):
         newDonor = Donor(donorNum)
+        newDonor.addInfo(donorInfo)
         donorList.append(newDonor)
     
+    return donorList
+
+def loadOtherData(donorList):
     #load sequence data and map it
     donorSequences = loadSequenceData()  
     taxMapper(donorSequences)
-
     
     #load SCFA Data and assign it to appropriate donors
     fattyAcidData = loadSCFAData()
@@ -171,7 +186,6 @@ def donorInitiator(databaseDirectory):
     ## asign this list to the global variable donors
     global donors
     donors = donorList
-    return donorList
 
 def taxMapper(sequences):
     '''
@@ -259,13 +273,24 @@ def setSCFAAverage(donors):
     global totalSCFAAverage
     totalSCFAAverage = sumSCFA/count
 
+def quitApp():
+    QtGui.QApplication.quit()
     
-            
+def raiseLimitError():
+    error = QtGui.QErrorMessage()
+    error.showMessage(QtCore.QString('Something is wrong with the upper and lower limits set on one of your searches!'))
+    error.exec_()
+    raise ValueError('Limit Problem')
 
-        
-        
-                
-        
+def raiseFileError():
+    error = QtGui.QErrorMessage()
+    error.showMessage(QtCore.QString('File directory chosen does not include required files'))
+    error.exec_()
+    return showFileOpener()
+
+def showFileOpener():
+    databaseDirectory = QtGui.QFileDialog.getExistingDirectory(None,QtCore.QString("Open Database Directory"),"/home", QtGui.QFileDialog.ShowDirsOnly | QtGui.QFileDialog.DontResolveSymlinks)
+    return databaseDirectory
             
             
         
