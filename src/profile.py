@@ -14,7 +14,7 @@ import pandas as pd
 
 class Donor:
     def __init__(self, donorID):
-        self.donorID = donorID
+        self.donorID = int(donorID)
         self.clinicalInfo = {'Abnormal Lab Results': '', 'Clinical Notes': '', 'Allergies': '', 'Diet': '', 'Other': ''}
         self.sequences = []
         self.shortChainFattyAcids={}
@@ -49,7 +49,8 @@ class Donor:
                     'BMI': self.setBMI, 'WC': self.setWaistCircumference, 'Age': self.setAge, 'Gender': self.setGender, 
                     'Abnormal Lab Results': self.setClinicalInfo, 
                     'Clinical Notes': self.setClinicalInfo, 
-                    'Allergies':self.setClinicalInfo, 'Diet': self.setClinicalInfo, 'Other': self.setClinicalInfo}
+                    'Allergies':self.setClinicalInfo, 'Diet': self.setClinicalInfo, 'Other': self.setClinicalInfo,
+                    'Current Studies': self.setCurrentStudies}
         for key in dictkeys.keys():
             if infoDict.has_key(key):
                 dictVal = infoDict[key]
@@ -96,7 +97,7 @@ class Donor:
             self.safetyRating = SafetyRatings[val]
     
     def getCurrentStudies(self):
-        return self.safetyRating
+        return self.currentStudies
     
     def setCurrentStudies(self, val):
         self.currentStudies = val

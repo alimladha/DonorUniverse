@@ -20,7 +20,7 @@ class sequenceObject
 
     func speciesEnrichment(Node) #calculates speciesEnrichment
     '''
-#setup key variables (Kingdom, Phylum, etc..)
+#setup_2 key variables (Kingdom, Phylum, etc..)
 Kingdom = 'k'
 Phylum = 'p'
 Class = 'c'
