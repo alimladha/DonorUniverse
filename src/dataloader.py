@@ -24,8 +24,11 @@ def loadSequenceData():
     internal Nodes. It grabs all information regardless of whether the donor exists in the donorList.csv
     '''
     #load OTU data as table
-    table= np.genfromtxt('OTUtable.txt', dtype = None, skip_header=1)
-    
+    try:
+        table= np.genfromtxt('OTUtable.txt', dtype = None, skip_header=1)
+    except:
+        raiseFileCannotBeOpenedError()
+        sys.exit()
     #loadOTU header
     txt=open('OTUtable.txt')
     header=txt.readline().split()
@@ -110,9 +113,14 @@ def donorInitiator( driveData, otherData, databaseDirectory = None):
     it returns a list of donor objects with appropriate donorIDs, 16s data, and SCFA data
     order is in the same provided in the donorList.csv file
     '''
-    credentialCWD = os.getcwd()
+    credentialCWD = os.getcwd() # gets directory where credential file is stored
+    
+    ## if no database directory is given, get data from google drive
     if databaseDirectory == None:
-        returnValue = googleDataSearcher.loadDonorData()
+        try:
+            returnValue = googleDataSearcher.loadDonorData()
+        except:
+            raiseGoogleDriveError()
         global screeningGroups
         screeningGroups = returnValue[0]
         donors = returnValue[1]
@@ -147,7 +155,10 @@ def donorInitiator( driveData, otherData, databaseDirectory = None):
     
     if driveData == True:
         os.chdir(credentialCWD)
-        returnValue = googleDataSearcher.loadDonorData()
+        try:
+            returnValue = googleDataSearcher.loadDonorData()
+        except:
+            raiseGoogleDriveError()
         os.chdir(fileCWD)
         global screeningGroups
         screeningGroups = returnValue[0]
@@ -155,15 +166,21 @@ def donorInitiator( driveData, otherData, databaseDirectory = None):
         return donors
          
     #get donors from DonorInfoFile, and collect metadata
-    table = pd.read_excel(DonorInfoFile)
+    try:
+        table = pd.read_excel(DonorInfoFile)
+    except:
+        raiseFileCannotBeOpenedError()
     donorNumList = []
     infoArrays = []
     for row in table.itertuples():
-        donorNumList.append(row.Donor)
-        infoDict = {'Safety Rating': row.SafetyRating, 'Group': row.Group, 'BMI': row.BMI, 'WC': row.WC,
+        try:
+            donorNumList.append(row.Donor)
+            infoDict = {'Safety Rating': row.SafetyRating, 'Group': row.Group, 'BMI': row.BMI, 'WC': row.WC,
                     'Age': row.Age, 'Gender': row.Gender, 'Abnormal Lab Results': row.AbnormalLabResults, 
                     'Clinical Notes': row.ClinicalNotes, 'Allergies': row.Allergies, 'Diet': row.Diet,
                     'Other' :row.Other}
+        except:
+            raiseFileCannotBeOpenedError()
         global screeningGroups
         if not pd.isnull(row.Group):
             screeningGroups.add(str(row.Group))
@@ -180,7 +197,10 @@ def donorInitiator( driveData, otherData, databaseDirectory = None):
 
 def loadOtherData(donorList):
     #load sequence data and map it
-    donorSequences = loadSequenceData()  
+    try:
+        donorSequences = loadSequenceData() 
+    except:
+        raiseFileCannotBeOpenedError() 
     taxMapper(donorSequences)
     
     #load SCFA Data and assign it to appropriate donors
@@ -306,6 +326,18 @@ def raiseFileError():
 def showFileOpener():
     databaseDirectory = QtGui.QFileDialog.getExistingDirectory(None,QtCore.QString("Open Database Directory"),"/home", QtGui.QFileDialog.ShowDirsOnly | QtGui.QFileDialog.DontResolveSymlinks)
     return databaseDirectory
+
+def raiseFileCannotBeOpenedError():
+    error = QtGui.QErrorMessage()
+    error.showMessage(QtCore.QString('Files given cannot be opened'))
+    error.exec_()
+    
+def raiseGoogleDriveError():
+    error = QtGui.QErrorMessage()
+    error.showMessage(QtCore.QString('Error Getting Data from Google Drive'))
+    error.exec_()
+    
+    
             
             
         
