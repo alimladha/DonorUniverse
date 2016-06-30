@@ -1,4 +1,4 @@
-#OTU_ID	66_013	01_158	71_004	30_002	10_003	32_021	60_014	26_049	37_044	57_006	05_159	65_011	44_040	39_009	29_008	52_028	72_003	56_003	40_021	33_003	62_006	28_002	14_007	25_004	51_012	17_002	74_002	75_001	59_039	34_003	Taxonomies
+#OTU_ID	66_013	01_158	71_004	30_002	10_003	32_021	60_014	26_049	37_044	57_006	05_159	65_011	44_040	39_009	29_008	52_028	72_003	56_003	40_021	33_003	62_006	28_002	14_007	25_004	51_012	17_002	74_002	75_001	59_039	06_003	Taxonomies
 100506	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	2	0	0	k__Bacteria;p__Firmicutes;c__Clostridia;o__Clostridiales;f__Lachnospiraceae;g__Coprococcus;s__
 1010876	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	2	0	0	0	0	0	0	k__Bacteria;p__Firmicutes;c__Clostridia;o__Clostridiales;f__Ruminococcaceae;g__Oscillospira;s__
 103730	0	1606	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0	k__Bacteria;p__Bacteroidetes;c__Bacteroidia;o__Bacteroidales;f__Bacteroidaceae;g__Bacteroides;s__

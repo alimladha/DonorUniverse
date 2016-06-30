@@ -1,4 +1,5 @@
-##this file will be used to calculate anything that has to do with logistics
+'''
+This file will be used to calculate anything that has to do with logistics
 
 func unitsAvailableNow(donor) ##function returns how many units are available now
 return donor.materialAvailable
@@ -27,3 +28,23 @@ new units = untis - donor.materialAvailable
 time = new units / donor.productionRate
 date = time + today
 return date
+'''
+
+from selenium import webdriver
+import time
+
+browser = webdriver.Firefox()
+browser.get('https://id.heroku.com/login')
+email = browser.find_element_by_id("email")
+password = browser.find_element_by_id("password")
+loginButton = browser.find_element_by_name("commit")
+
+email.send_keys("alim@openbiome.org")
+password.send_keys("Wolfpuck1!")
+loginButton.click()
+browser.get('https://dataclips.heroku.com/xuxyyihpajhswmajwsfgewefelws-donor-stats')
+time.sleep(5)
+browser.get('https://dataclips.heroku.com/xuxyyihpajhswmajwsfgewefelws-donor-stats.json')
+elem = browser.find_element_by_tag_name("pre")
+content = elem.text
+print content
