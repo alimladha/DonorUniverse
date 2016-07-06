@@ -534,7 +534,7 @@ class Ui_Form(object):
         self.jsdCombo.setItemText(0, _translate("Form", "Above Average", None))
         self.jsdCombo.setItemText(1, _translate("Form", "Below Average", None))
         self.logisticsHeader.setText(_translate("Form", "Logistics:", None))
-        self.fprowCheck.setText(_translate("Form", "Other", None))
+        self.fprowCheck.setText(_translate("Form", "F Prow", None))
         self.fprowCombo.setItemText(0, _translate("Form", "Above Average", None))
         self.fprowCombo.setItemText(1, _translate("Form", "Below Average", None))
         self.safetyRatingCheck.setText(_translate("Form", "Safety Rating", None))
@@ -542,12 +542,6 @@ class Ui_Form(object):
         self.safetyRatingCombo.setItemText(1, _translate("Form", "Conditional", None))
         self.safetyRatingCombo.setItemText(2, _translate("Form", "Restricted", None))
         self.safetyRatingCombo.setItemText(3, _translate("Form", "Rejected", None))
-        #added Code
-        newQStringList= QtCore.QStringList()
-        newQStringList.append(QtCore.QString('Conditional or better'))
-        newQStringList.append(QtCore.QString('Restricted or better'))
-        self.safetyRatingCombo.addItems(newQStringList)
-        #added Code
         self.waistLLCheck.setText(_translate("Form", "Lower Limit", None))
         self.waistULCheck.setText(_translate("Form", "Upper Limit", None))
         self.genderCheck.setText(_translate("Form", "Gender", None))

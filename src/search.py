@@ -9,6 +9,7 @@ import math
 from PyQt4 import QtCore, QtGui
 import dataloader
 from __builtin__ import int
+from operator import itemgetter
 
 donorsWithSequences = [] ##global variable with all donors who have sequence Data
 SafetyRatings={'Approved': 1, 'Conditional': 2, 'Restricted': 3, 'Rejected': 4, 'Conditional or better':5, 'Restricted or better': 6}
@@ -251,6 +252,13 @@ def findMatches(form, answers, donors):
             wantFemale = answers[form.femaleRadio]
             if not rightGender(wantMale, wantFemale, donor.gender):
                 continue
+        if(answers[form.currentStudiesCheck]):
+            wantLL = answers[form.currentStudiesLLCheck]
+            wantUL = answers[form.currentStudiesULCheck]
+            ll = answers[form.currentStudiesLLSpin]
+            ul = answers[form.currentStudiesULSpin]
+            if not meetsRange(wantLL, ll, wantUL, ul, donor.currentStudies):
+                continue
         if(answers[form.processStatusCheck]):
             if not processCheck(answers[form.processStatusCombo], donor):
                 continue
@@ -365,8 +373,6 @@ def averageCheck(respectToAverage, average, value):
         return value<average
     
 def screenGroupCheck(group, donor):
-    print group
-    print donor.getScreeningGroup()
     return group == donor.getScreeningGroup()
         
             
@@ -383,6 +389,7 @@ def displayDonors(table, headerBoxes, headerToFuncDict, clinicalInformationCheck
                 info = infoFunc() 
                 for headerString in headerList:
                     item = QtGui.QTableWidgetItem()
+                    item.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
                     stringInfo = ''
                     if info.has_key(headerString):
                         stringInfo = info[headerString]
@@ -391,17 +398,19 @@ def displayDonors(table, headerBoxes, headerToFuncDict, clinicalInformationCheck
                     colCounter = colCounter+1
             continue
         item = QtGui.QTableWidgetItem()
+        item.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
         donorFunc = headerToFuncDict[header]
         if isinstance(donorFunc(), int) or isinstance(donorFunc(), float):
             value = donorFunc()
             item.setData(QtCore.Qt.DisplayRole, value)
-            item.setText(QtCore.QString(str(value)))
+            #item.setText(QtCore.QString(str(value)))
         else:
             displayString = str(donorFunc()) 
             item.setText(QtCore.QString(displayString))
         table.setItem(rowCount, colCounter, item)
         colCounter = colCounter + 1 
     exampleData = table.itemAt(1,0).data(QtCore.Qt.DisplayRole)
+    table.setSortingEnabled(True)
     table.resizeColumnsToContents()
     
 def displayHeaders(table, headers, clinicalInformationCheckbox):
@@ -416,11 +425,13 @@ def displayHeaders(table, headers, clinicalInformationCheckbox):
                 headerList = ['Abnormal Lab Results', 'Clinical Notes', 'Allergies', 'Diet', 'Other' ]
                 for headerString in headerList:
                     item = QtGui.QTableWidgetItem()
+                    item.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
                     item.setText(QtCore.QString(headerString))
                     table.setHorizontalHeaderItem(colCounter, item)
                     colCounter = colCounter+1
             continue
         item = QtGui.QTableWidgetItem()
+        item.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
         if isinstance(header, str):
             item.setText(QtCore.QString(header))
         elif isinstance(header, QtGui.QCheckBox):
@@ -429,6 +440,62 @@ def displayHeaders(table, headers, clinicalInformationCheckbox):
         colCounter = colCounter + 1
     
             
+def overallProfileRanker(resultsLists, weights):
+    results = []
+    counter = 0
+    for resultList, weight in zip(resultsLists, weights):
+        newList =  donorListScorer(resultList)
+        if counter == 0:
+            for donor in newList:
+                results.append((donor[0], donor[1]*math.fabs(weight)))
+            counter = 1
+        else:
+            newListDonors = [item[0] for item in newList]
+            donorsNotInNewList = [item for item in results if item[0] not in newListDonors]
+            for item in donorsNotInNewList:
+                results.remove(item)
+            newResults = []
+            for newDonor, newScore in newList:
+                for i in xrange(len(results)):
+                    oldDonor = results[i][0]
+                    oldScore = results[i][1]
+                    if newDonor == oldDonor:
+                        newResults.append((newDonor, oldScore + newScore*math.fabs(weight)))
+                        break
+            results = newResults
+    results = sorted(results, key=itemgetter(1))
+    return results
+                        
+                
+            
+def donorListScorer(donorRankList):
+    counter = 1
+    newDonorList = []
+    for i in xrange(len(donorRankList)):
+        if i>0:
+            prevDonor = donorRankList[i-1]
+        else:
+            prevDonor = None
+        curDonor = donorRankList[i]
+        if i<(len(donorRankList)-1) and i>0:
+            nextDonor = donorRankList[i+1]
+        else:
+            nextDonor = None
+        
+        if nextDonor:
+            curCount = curDonor.getCount()
+            nextCount = nextDonor.getCount()
+            if not curCount == nextCount:
+                counter = counter +1
+        elif prevDonor:
+            curCount = curDonor.getCount()
+            prevCount = prevDonor.getCount()
+            if not curCount == prevCount:
+                counter = counter +1    
+        newDonorList.append((curDonor.getId(), float(counter)/float(len(donorRankList))))
+    return newDonorList
+        
+
     
     
     

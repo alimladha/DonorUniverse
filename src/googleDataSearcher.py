@@ -9,7 +9,6 @@ import file_setter
 
 def loadTable(url):
     scope = ['https://spreadsheets.google.com/feeds']
-    os.chdir('/Users/alim/GitHub/DonorUniverseGit/src')
     credentials = ServiceAccountCredentials.from_json_keyfile_name(file_setter.resource_path('credentials.json'), scope)
     gc = gspread.authorize(credentials)
     sheet = gc.open_by_url(url)
@@ -28,7 +27,6 @@ def loadTable(url):
     return table
 
 def loadDonorData():
-    print "hey there Alim"
     table = loadTable('https://docs.google.com/spreadsheets/d/197EsVg-p8xZkxfdwpf1wgjhKaJQtrt8lDiDegwOuap0/edit?ts=577188f8#gid=58702749')
     donorNumList = []
     infoArrays = []

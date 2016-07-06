@@ -9,6 +9,7 @@
 from PyQt4 import QtCore, QtGui
 import qdarkstyle
 import DonorUniverseGUI_5
+import DonorUniverseGUI
 driveData = False
 otherData = True
 DriveButton = 0
@@ -103,7 +104,7 @@ class IntroForm(object):
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(_translate("Form", "Form", None))
+        Form.setWindowTitle(_translate("Form", "Data Selector", None))
         self.otherYesRadio.setText(_translate("Form", "Yes*", None))
         self.otherNoRadio.setText(_translate("Form", "No", None))
         self.driveRadio.setText(_translate("Form", "Google Drive", None))
@@ -116,13 +117,17 @@ class IntroForm(object):
     def getUserInput(self, Form):
         donorButtonID = self.donorButtonGroup.checkedId()
         dataButtonID = self.otherDataGroup.checkedId()
+        global driveData
+        global otherData
         if donorButtonID == DriveButton:
-            global driveData
             driveData = True
+        elif donorButtonID == LocalButton:
+            driveData = False
         if dataButtonID == NoButton:
-            global otherData
             otherData = False
-        DonorUniverseGUI_5.openActualWindow(self, driveData, otherData)
+        if dataButtonID == YesButton:
+            otherData = True
+        DonorUniverseGUI.openActualWindow(self, driveData, otherData)
         Form.close()
         
 if __name__ == "__main__":
