@@ -97,25 +97,34 @@ class Donor:
             self.safetyRating = SafetyRatings[val]
     
     def getCurrentStudies(self):
-        return self.currentStudies
+        return long(self.currentStudies)
     
     def setCurrentStudies(self, val):
         self.currentStudies = val
     
     def getBMI(self):
-        return self.bmi
+        if self.bmi:
+            return float(self.bmi)
+        else:
+            return self.bmi
     
     def setBMI(self, val):
         self.bmi = val
     
     def getWaistCircumference(self):
-        return self.waistCircumference
+        if self.waistCircumference:
+            return float(self.waistCircumference)
+        else:
+            return self.waistCircumference
     
     def setWaistCircumference(self, val):
         self.waistCircumference = val
       
     def getAge(self):
-        return self.age
+        if self.age:
+            return int(self.age)
+        else:
+            return self.age
     
     def setAge(self, val):
         self.age = val
@@ -140,15 +149,15 @@ class Donor:
         return self.materialAvailable
     
     def getSDI(self):
-        return self.sdi
+        return float(self.sdi)
     def getJSD(self):
-        return self.jsd
+        return float(self.jsd)
     
     def getFPROW(self):
-        return self.fprow
+        return float(self.fprow)
     
     def getTotalSCFA(self):
-        return self.totalSCFA 
+        return float(self.totalSCFA)
      
     def getScreeningGroup(self):
         return self.screeningGroup

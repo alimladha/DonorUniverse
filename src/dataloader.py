@@ -336,6 +336,7 @@ def raiseGoogleDriveError():
     error = QtGui.QErrorMessage()
     error.showMessage(QtCore.QString('Error Getting Data from Google Drive'))
     error.exec_()
+    raise ValueError("No Google Data")
     
     
             
