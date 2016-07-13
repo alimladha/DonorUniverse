@@ -11,8 +11,10 @@ import dataloader
 from sequence import TaxPyramid
 import search
 import collections
-import time
+import datetime
 import qdarkstyle
+import logistics
+from PyQt4.Qt import QDate
 #added Code
 
 try:
@@ -45,7 +47,7 @@ class Ui_Form(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName(_fromUtf8("scrollArea"))
         self.scrollAreaWidgetContents_3 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 1208, 1037))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 1208, 1074))
         self.scrollAreaWidgetContents_3.setObjectName(_fromUtf8("scrollAreaWidgetContents_3"))
         self.gridLayout_17 = QtGui.QGridLayout(self.scrollAreaWidgetContents_3)
         self.gridLayout_17.setObjectName(_fromUtf8("gridLayout_17"))
@@ -84,9 +86,6 @@ class Ui_Form(object):
         self.clinicalInfoCheck = QtGui.QCheckBox(self.scrollAreaWidgetContents_3)
         self.clinicalInfoCheck.setObjectName(_fromUtf8("clinicalInfoCheck"))
         self.gridLayout_3.addWidget(self.clinicalInfoCheck, 10, 2, 1, 1)
-        self.prodRateCheck = QtGui.QCheckBox(self.scrollAreaWidgetContents_3)
-        self.prodRateCheck.setObjectName(_fromUtf8("prodRateCheck"))
-        self.gridLayout_3.addWidget(self.prodRateCheck, 17, 0, 1, 1)
         self.waistCheck = QtGui.QCheckBox(self.scrollAreaWidgetContents_3)
         self.waistCheck.setObjectName(_fromUtf8("waistCheck"))
         self.gridLayout_3.addWidget(self.waistCheck, 7, 2, 1, 1)
@@ -199,6 +198,8 @@ class Ui_Form(object):
         self.gridLayout_3.addWidget(self.safetyRatingCheck, 5, 0, 1, 1)
         self.safetyRatingCombo = QtGui.QComboBox(self.scrollAreaWidgetContents_3)
         self.safetyRatingCombo.setObjectName(_fromUtf8("safetyRatingCombo"))
+        self.safetyRatingCombo.addItem(_fromUtf8(""))
+        self.safetyRatingCombo.addItem(_fromUtf8(""))
         self.safetyRatingCombo.addItem(_fromUtf8(""))
         self.safetyRatingCombo.addItem(_fromUtf8(""))
         self.safetyRatingCombo.addItem(_fromUtf8(""))
@@ -369,6 +370,24 @@ class Ui_Form(object):
         self.currentStudiesLLSpin.setObjectName(_fromUtf8("currentStudiesLLSpin"))
         self.gridLayout_5.addWidget(self.currentStudiesLLSpin, 1, 1, 1, 1)
         self.gridLayout_3.addLayout(self.gridLayout_5, 10, 1, 1, 1)
+        self.prodRateCheck = QtGui.QCheckBox(self.scrollAreaWidgetContents_3)
+        self.prodRateCheck.setObjectName(_fromUtf8("prodRateCheck"))
+        self.gridLayout_3.addWidget(self.prodRateCheck, 10, 3, 1, 1)
+        self.gridLayout_11 = QtGui.QGridLayout()
+        self.gridLayout_11.setObjectName(_fromUtf8("gridLayout_11"))
+        self.materialTypeLabel_4 = QtGui.QLabel(self.scrollAreaWidgetContents_3)
+        self.materialTypeLabel_4.setObjectName(_fromUtf8("materialTypeLabel_4"))
+        self.gridLayout_11.addWidget(self.materialTypeLabel_4, 0, 0, 1, 1)
+        self.unitsLabel_4 = QtGui.QLabel(self.scrollAreaWidgetContents_3)
+        self.unitsLabel_4.setObjectName(_fromUtf8("unitsLabel_4"))
+        self.gridLayout_11.addWidget(self.unitsLabel_4, 1, 0, 1, 1)
+        self.materialTypeCombo_4 = QtGui.QComboBox(self.scrollAreaWidgetContents_3)
+        self.materialTypeCombo_4.setObjectName(_fromUtf8("materialTypeCombo_4"))
+        self.gridLayout_11.addWidget(self.materialTypeCombo_4, 0, 1, 1, 1)
+        self.unitsSpin_4 = QtGui.QSpinBox(self.scrollAreaWidgetContents_3)
+        self.unitsSpin_4.setObjectName(_fromUtf8("unitsSpin_4"))
+        self.gridLayout_11.addWidget(self.unitsSpin_4, 1, 1, 1, 1)
+        self.gridLayout_3.addLayout(self.gridLayout_11, 17, 1, 1, 1)
         self.gridLayout_17.addLayout(self.gridLayout_3, 3, 0, 1, 4)
         self.clearDonor = QtGui.QPushButton(self.scrollAreaWidgetContents_3)
         self.clearDonor.setObjectName(_fromUtf8("clearDonor"))
@@ -504,8 +523,131 @@ class Ui_Form(object):
         self.tabWidget.addTab(self.tab, _fromUtf8(""))
         self.tab_2 = QtGui.QWidget()
         self.tab_2.setObjectName(_fromUtf8("tab_2"))
+        self.verticalLayout = QtGui.QVBoxLayout(self.tab_2)
+        self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
+        self.gridLayout_12 = QtGui.QGridLayout()
+        self.gridLayout_12.setObjectName(_fromUtf8("gridLayout_12"))
+        self.materialTypeCombo_Log2 = QtGui.QComboBox(self.tab_2)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.materialTypeCombo_Log2.sizePolicy().hasHeightForWidth())
+        self.materialTypeCombo_Log2.setSizePolicy(sizePolicy)
+        self.materialTypeCombo_Log2.setObjectName(_fromUtf8("materialTypeCombo_Log2"))
+        self.gridLayout_12.addWidget(self.materialTypeCombo_Log2, 2, 2, 1, 1)
+        self.line_6 = QtGui.QFrame(self.tab_2)
+        self.line_6.setFrameShape(QtGui.QFrame.HLine)
+        self.line_6.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_6.setObjectName(_fromUtf8("line_6"))
+        self.gridLayout_12.addWidget(self.line_6, 5, 0, 1, 5)
+        self.efficiencyLabel = QtGui.QLabel(self.tab_2)
+        self.efficiencyLabel.setObjectName(_fromUtf8("efficiencyLabel"))
+        self.gridLayout_12.addWidget(self.efficiencyLabel, 0, 3, 1, 1)
+        self.materialTypeCombo_Log1 = QtGui.QComboBox(self.tab_2)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.materialTypeCombo_Log1.sizePolicy().hasHeightForWidth())
+        self.materialTypeCombo_Log1.setSizePolicy(sizePolicy)
+        self.materialTypeCombo_Log1.setObjectName(_fromUtf8("materialTypeCombo_Log1"))
+        self.gridLayout_12.addWidget(self.materialTypeCombo_Log1, 2, 1, 1, 1)
+        self.donorPoolStaticLabel_Log = QtGui.QLabel(self.tab_2)
+        self.donorPoolStaticLabel_Log.setObjectName(_fromUtf8("donorPoolStaticLabel_Log"))
+        self.gridLayout_12.addWidget(self.donorPoolStaticLabel_Log, 0, 0, 1, 1)
+        self.unitSearchCheck = QtGui.QCheckBox(self.tab_2)
+        self.unitSearchCheck.setObjectName(_fromUtf8("unitSearchCheck"))
+        self.gridLayout_12.addWidget(self.unitSearchCheck, 4, 0, 1, 1)
+        self.unitsSpin_Log2 = QtGui.QSpinBox(self.tab_2)
+        self.unitsSpin_Log2.setMaximum(10000)
+        self.unitsSpin_Log2.setObjectName(_fromUtf8("unitsSpin_Log2"))
+        self.gridLayout_12.addWidget(self.unitsSpin_Log2, 4, 2, 1, 1)
+        self.dateSearchCheck = QtGui.QCheckBox(self.tab_2)
+        self.dateSearchCheck.setObjectName(_fromUtf8("dateSearchCheck"))
+        self.gridLayout_12.addWidget(self.dateSearchCheck, 6, 0, 1, 1)
+        self.materialTypeLabel_Log = QtGui.QLabel(self.tab_2)
+        self.materialTypeLabel_Log.setObjectName(_fromUtf8("materialTypeLabel_Log"))
+        self.gridLayout_12.addWidget(self.materialTypeLabel_Log, 2, 0, 1, 1)
+        self.line_4 = QtGui.QFrame(self.tab_2)
+        self.line_4.setFrameShape(QtGui.QFrame.HLine)
+        self.line_4.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_4.setObjectName(_fromUtf8("line_4"))
+        self.gridLayout_12.addWidget(self.line_4, 1, 0, 1, 5)
+        self.line_5 = QtGui.QFrame(self.tab_2)
+        self.line_5.setFrameShape(QtGui.QFrame.HLine)
+        self.line_5.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_5.setObjectName(_fromUtf8("line_5"))
+        self.gridLayout_12.addWidget(self.line_5, 3, 0, 1, 5)
+        self.unitsSpin_Log1 = QtGui.QSpinBox(self.tab_2)
+        self.unitsSpin_Log1.setMaximum(10000)
+        self.unitsSpin_Log1.setObjectName(_fromUtf8("unitsSpin_Log1"))
+        self.gridLayout_12.addWidget(self.unitsSpin_Log1, 4, 1, 1, 1)
+        self.donorPoolReset_Log = QtGui.QPushButton(self.tab_2)
+        self.donorPoolReset_Log.setObjectName(_fromUtf8("donorPoolReset_Log"))
+        self.gridLayout_12.addWidget(self.donorPoolReset_Log, 0, 2, 1, 1)
+        self.materialTypeCombo_Log4 = QtGui.QComboBox(self.tab_2)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.materialTypeCombo_Log4.sizePolicy().hasHeightForWidth())
+        self.materialTypeCombo_Log4.setSizePolicy(sizePolicy)
+        self.materialTypeCombo_Log4.setObjectName(_fromUtf8("materialTypeCombo_Log4"))
+        self.gridLayout_12.addWidget(self.materialTypeCombo_Log4, 2, 4, 1, 1)
+        self.dateEdit = QtGui.QDateEdit(self.tab_2)
+        self.dateEdit.setCalendarPopup(True)
+        self.dateEdit.setDate(QtCore.QDate(2000, 1, 27))
+        self.dateEdit.setObjectName(_fromUtf8("dateEdit"))
+        self.gridLayout_12.addWidget(self.dateEdit, 6, 1, 1, 1)
+        self.donorPoolLabel_Log = QtGui.QLabel(self.tab_2)
+        self.donorPoolLabel_Log.setObjectName(_fromUtf8("donorPoolLabel_Log"))
+        self.gridLayout_12.addWidget(self.donorPoolLabel_Log, 0, 1, 1, 1)
+        self.materialTypeCombo_Log3 = QtGui.QComboBox(self.tab_2)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.materialTypeCombo_Log3.sizePolicy().hasHeightForWidth())
+        self.materialTypeCombo_Log3.setSizePolicy(sizePolicy)
+        self.materialTypeCombo_Log3.setObjectName(_fromUtf8("materialTypeCombo_Log3"))
+        self.gridLayout_12.addWidget(self.materialTypeCombo_Log3, 2, 3, 1, 1)
+        self.efficiencySpin = QtGui.QSpinBox(self.tab_2)
+        self.efficiencySpin.setMinimum(1)
+        self.efficiencySpin.setMaximum(100)
+        self.efficiencySpin.setProperty("value", 100)
+        self.efficiencySpin.setObjectName(_fromUtf8("efficiencySpin"))
+        self.gridLayout_12.addWidget(self.efficiencySpin, 0, 4, 1, 1)
+        self.unitsSpin_Log4 = QtGui.QSpinBox(self.tab_2)
+        self.unitsSpin_Log4.setMaximum(10000)
+        self.unitsSpin_Log4.setObjectName(_fromUtf8("unitsSpin_Log4"))
+        self.gridLayout_12.addWidget(self.unitsSpin_Log4, 4, 4, 1, 1)
+        self.searchButton_Log = QtGui.QPushButton(self.tab_2)
+        self.searchButton_Log.setObjectName(_fromUtf8("searchButton_Log"))
+        self.gridLayout_12.addWidget(self.searchButton_Log, 8, 4, 1, 1)
+        self.unitsSpin_Log3 = QtGui.QSpinBox(self.tab_2)
+        self.unitsSpin_Log3.setMaximum(10000)
+        self.unitsSpin_Log3.setObjectName(_fromUtf8("unitsSpin_Log3"))
+        self.gridLayout_12.addWidget(self.unitsSpin_Log3, 4, 3, 1, 1)
+        self.line_7 = QtGui.QFrame(self.tab_2)
+        self.line_7.setFrameShape(QtGui.QFrame.HLine)
+        self.line_7.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_7.setObjectName(_fromUtf8("line_7"))
+        self.gridLayout_12.addWidget(self.line_7, 7, 0, 1, 5)
+        self.verticalLayout.addLayout(self.gridLayout_12)
+        self.tableWidget_2 = QtGui.QTableWidget(self.tab_2)
+        self.tableWidget_2.setWordWrap(True)
+        self.tableWidget_2.setObjectName(_fromUtf8("tableWidget_2"))
+        self.tableWidget_2.setColumnCount(1)
+        self.tableWidget_2.setRowCount(0)
+        item = QtGui.QTableWidgetItem()
+        self.tableWidget_2.setHorizontalHeaderItem(0, item)
+        self.tableWidget_2.horizontalHeader().setCascadingSectionResizes(True)
+        self.tableWidget_2.horizontalHeader().setStretchLastSection(True)
+        self.tableWidget_2.verticalHeader().setCascadingSectionResizes(True)
+        self.tableWidget_2.verticalHeader().setStretchLastSection(True)
+        self.verticalLayout.addWidget(self.tableWidget_2)
         self.tabWidget.addTab(self.tab_2, _fromUtf8(""))
         self.horizontalLayout_5.addWidget(self.tabWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Fixed)
+        self.unitsSpin_4.setSizePolicy(sizePolicy)
+        self.materialTypeCombo_4.setSizePolicy(sizePolicy)
 
         self.retranslateUi(Form)
         self.tabWidget.setCurrentIndex(0)
@@ -520,6 +662,9 @@ class Ui_Form(object):
         QtCore.QObject.connect(self.resetDonorPoolButton, QtCore.SIGNAL(_fromUtf8('clicked()')), self.resetDonorPool)
         QtCore.QObject.connect(self.clearDonor, QtCore.SIGNAL(_fromUtf8('clicked()')), self.resetDonorSearch)
         QtCore.QObject.connect(self.clear16Search, QtCore.SIGNAL(_fromUtf8('clicked()')), self.resetSequenceSearch)
+        QtCore.QObject.connect(self.searchButton_Log, QtCore.SIGNAL(_fromUtf8('clicked()')), self.logisticSearch)
+        QtCore.QObject.connect(self.exportToLogisticsButton, QtCore.SIGNAL(_fromUtf8('clicked()')), self.exportLogistic)
+        QtCore.QObject.connect(self.donorPoolReset_Log, QtCore.SIGNAL(_fromUtf8('clicked()')), self.resetLogPool)
         #added Code
         QtCore.QMetaObject.connectSlotsByName(Form)
 
@@ -550,7 +695,10 @@ class Ui_Form(object):
         self.jsdCombo.setItemText(0, _translate("Form", "Above Average", None))
         self.jsdCombo.setItemText(1, _translate("Form", "Below Average", None))
         self.logisticsHeader.setText(_translate("Form", "Logistics:", None))
-        self.fprowCheck.setText(_translate("Form", "F Prow", None))
+        self.fprowCheck.setText(_translate("Form", "F. Prau", None))
+        ##added Code
+        self.fprowCheck.setText(QtCore.QString("F. Prau"))
+        ##added Code
         self.fprowCombo.setItemText(0, _translate("Form", "Above Average", None))
         self.fprowCombo.setItemText(1, _translate("Form", "Below Average", None))
         self.safetyRatingCheck.setText(_translate("Form", "Safety Rating", None))
@@ -558,10 +706,14 @@ class Ui_Form(object):
         self.safetyRatingCombo.setItemText(1, _translate("Form", "Conditional", None))
         self.safetyRatingCombo.setItemText(2, _translate("Form", "Restricted", None))
         self.safetyRatingCombo.setItemText(3, _translate("Form", "Rejected", None))
+        self.safetyRatingCombo.setItemText(4, _translate("Form", "Conditional or better", None))
+        self.safetyRatingCombo.setItemText(5, _translate("Form", "Restricted or better", None))
         self.waistLLCheck.setText(_translate("Form", "Lower Limit", None))
         self.waistULCheck.setText(_translate("Form", "Upper Limit", None))
         self.genderCheck.setText(_translate("Form", "Gender", None))
         self.ageCheck.setText(_translate("Form", "Age", None))
+        self.materialTypeLabel_4.setText(_translate("Form", "Type", None))
+        self.unitsLabel_4.setText(_translate("Form", "Min #Units", None))
         self.shippingCombo.setItemText(0, _translate("Form", "Available", None))
         self.shippingCombo.setItemText(1, _translate("Form", "Hold", None))
         self.ageULCheck.setText(_translate("Form", "Upper Limit", None))
@@ -625,13 +777,54 @@ class Ui_Form(object):
         item.setText(_translate("Form", "Results", None))
         self.subtractSCFAButton.setText(_translate("Form", "-", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Form", "16S and SCFA Search", None))
+        self.efficiencyLabel.setText(_translate("Form", "Efficiency Assumption (Percent)", None))
+        self.donorPoolStaticLabel_Log.setText(_translate("Form", "Current Donor Pool:", None))
+        self.unitSearchCheck.setText(_translate("Form", "Required Units:", None))
+        self.dateSearchCheck.setText(_translate("Form", "Date Search:", None))
+        self.materialTypeLabel_Log.setText(_translate("Form", "Material Types:", None))
+        self.donorPoolReset_Log.setText(_translate("Form", "Reset Donor Pool", None))
+        self.donorPoolLabel_Log.setText(_translate("Form", "All Donors", None))
+        self.searchButton_Log.setText(_translate("Form", "Search", None))
+        self.tableWidget_2.setSortingEnabled(True)
+        item = self.tableWidget_2.horizontalHeaderItem(0)
+        item.setText(_translate("Form", "Results", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Form", "Logistics Search", None))
+        today = datetime.date.today().__str__()
+        self.dateEdit.setDate(QtCore.QDate.fromString(today, 'yyyy-MM-dd'))
         #added codes
         screeningGroupList = QtCore.QStringList()
         for group in dataloader.screeningGroups:
             screeningGroupList.append(QtCore.QString(group))
         self.screeningGroupCombo.addItems(screeningGroupList)
-
+        
+        self.processStatusCombo.clear()
+        statusList = QtCore.QStringList()
+        for statusType in logistics.Statuses:
+            statusList.append(QtCore.QString(statusType))
+        self.processStatusCombo.addItems(statusList)
+        
+        materialCombos = [self.materialTypeCombo_1, self.materialTypeCombo_2, self.materialTypeCombo_3, self.materialTypeCombo_4]
+        materialStatuses = ['Available', 'Quarantined', 'Total']
+        typeList = QtCore.QStringList()
+        typeList.append(QtCore.QString())
+        for productType in logistics.MaterialTypes:
+            for status in materialStatuses:
+                typeList.append(QtCore.QString(status + ": " + productType))
+        for comboBox in materialCombos:
+            comboBox.addItems(typeList)
+            
+        materialLogCombos = [self.materialTypeCombo_Log1, self.materialTypeCombo_Log2, self.materialTypeCombo_Log3, self.materialTypeCombo_Log4]
+        typeList = QtCore.QStringList()
+        typeList.append(QtCore.QString())
+        for productType in logistics.MaterialTypes:
+            typeList.append(QtCore.QString(productType))
+        for comboBox in materialLogCombos:
+            comboBox.addItems(typeList)
+            
+        materialSpins = [self.unitsSpin_1, self.unitsSpin_2, self.unitsSpin_3, self.unitsSpin_4]
+        for spinBox in materialSpins:
+            spinBox.setMaximum(10000)
+            
     def addSearchRow(self):
         box = QtGui.QSpinBox()
         box.setRange(-10, 10)
@@ -859,7 +1052,7 @@ class Ui_Form(object):
             headerToFunc = { self.donorCheck: donor.getDonorID, self.safetyRatingCheck: donor.getSafetyRating, self.bmiCheck: donor.getBMI, 
                             self.waistCheck: donor.getWaistCircumference, self.ageCheck: donor.getAge,
                             self.genderCheck: donor.getGender, self.processStatusCheck: donor.getProcessingStatus,
-                            self.shippingCheck: donor.getShippingStatus, self.materialCheck: donor.getMaterialAvailable,
+                            self.shippingCheck: donor.getShippingStatus, self.materialCheck: donor.displayMaterialAvailable,
                             self.sdiCheck: donor.getSDI, self.jsdCheck: donor.getJSD, self.fprowCheck: donor.getFPROW,
                             self.totalSCFACheck: donor.getTotalSCFA, self.currentStudiesCheck: donor.getCurrentStudies,
                             self.prodRateCheck: donor.getProductionRate, self.clinicalInfoCheck: donor.getClinicalInfo,
@@ -872,8 +1065,8 @@ class Ui_Form(object):
                      self.waistULSpin, self.waistLLCheck, self.waistLLSpin, self.ageCheck, self.ageULCheck, self.ageLLCheck,
                      self.ageLLSpin, self.ageULSpin, self.genderCheck, self.maleRadio, self.femaleRadio, self.processStatusCheck,
                      self.processStatusCombo, self.shippingCheck, self.shippingCombo, self.materialCheck,
-                     self.materialTypeCombo_1, self.materialTypeCombo_2, self.materialTypeCombo_3, self.unitsSpin_1,
-                     self.unitsSpin_2, self.unitsSpin_3, self.prodRateCheck, self.sdiCheck, self.sdiCombo, self.jsdCheck, self.jsdCombo,
+                     self.materialTypeCombo_1, self.materialTypeCombo_2, self.materialTypeCombo_3, self.materialTypeCombo_4, self.unitsSpin_1,
+                     self.unitsSpin_2, self.unitsSpin_3, self.unitsSpin_4, self.prodRateCheck, self.sdiCheck, self.sdiCombo, self.jsdCheck, self.jsdCombo,
                      self.fprowCheck, self.fprowCombo, self.totalSCFACheck, self.totalSCFACombo, self.currentStudiesLLCheck,
                      self.currentStudiesLLSpin, self.currentStudiesULCheck, self.currentStudiesULSpin]
         formAnswer={}
@@ -889,6 +1082,31 @@ class Ui_Form(object):
             elif isinstance(field, QtGui.QRadioButton):
                 formAnswer[field] = field.isChecked()
         return formAnswer
+    def getLogisticForm(self):
+        formFields = [self.efficiencySpin, self.materialTypeCombo_Log1, self.materialTypeCombo_Log2, self.materialTypeCombo_Log3,
+                      self.materialTypeCombo_Log4, self.unitsSpin_Log1, self.unitsSpin_Log2, self.unitsSpin_Log3, 
+                      self.unitsSpin_Log4, self.dateSearchCheck, self.dateEdit, self.unitSearchCheck]
+        formAnswer = {}
+        for field in formFields:
+            if isinstance(field, QtGui.QCheckBox):
+                formAnswer[field] = field.isChecked()
+            elif isinstance(field, QtGui.QComboBox):
+                formAnswer[field] = str(field.currentText())
+            elif isinstance(field, QtGui.QSpinBox):
+                formAnswer[field] = int(field.value())
+            elif isinstance(field, QtGui.QDoubleSpinBox):
+                formAnswer[field] = float(field.value())
+            elif isinstance(field, QtGui.QRadioButton):
+                formAnswer[field] = field.isChecked()
+            elif isinstance(field, QtGui.QDateEdit):
+                qdateAnswer = field.date()
+                formAnswer[field] = qdateAnswer.toPyDate()
+        return formAnswer
+    
+    def logisticSearch(self):
+        resetResultsTable(self.tableWidget_2)
+        answers = self.getLogisticForm()
+        logistics.logisticSearch(answers, logisticDonors, self)
     
     def exportSixteenS(self):
         sequenceResults = []
@@ -903,6 +1121,18 @@ class Ui_Form(object):
         self.resetSequenceSearch()
         resetResultsTable(self.tableWidget_Results)
         self.donorPoolLabel.setText(QtCore.QString("Most Recent Donor Search"))
+        
+    def exportLogistic(self):
+        global logisticDonors
+        logisticDonors = donorSearchResults
+        resetResultsTable(self.tableWidget_2)
+        self.donorPoolLabel_Log.setText(QtCore.QString("Most Recent Donor Search"))
+    
+    def resetLogPool(self):
+        global logisticDonors
+        logisticDonors = allDonors
+        resetResultsTable(self.tableWidget_2)
+        self.donorPoolLabel_Log.setText(QtCore.QString("All Donors"))
     
     def resetDonorPool(self):
         global donorList 
@@ -936,8 +1166,8 @@ class Ui_Form(object):
                       self.waistULSpin, self.waistLLCheck, self.waistLLSpin, self.ageCheck, self.ageULCheck, self.ageLLCheck,
                       self.ageLLSpin, self.ageULSpin, self.genderCheck, self.maleRadio, self.femaleRadio, self.processStatusCheck,
                       self.processStatusCombo, self.shippingCheck, self.shippingCombo, self.materialCheck,
-                      self.materialTypeCombo_1, self.materialTypeCombo_2, self.materialTypeCombo_3, self.unitsSpin_1,
-                      self.unitsSpin_2, self.unitsSpin_3, self.prodRateCheck, self.sdiCheck, self.sdiCombo, self.jsdCheck, self.jsdCombo,
+                      self.materialTypeCombo_1, self.materialTypeCombo_2, self.materialTypeCombo_3, self.materialTypeCombo_4 ,self.unitsSpin_1,
+                      self.unitsSpin_2, self.unitsSpin_3, self.unitsSpin_4 ,self.prodRateCheck, self.sdiCheck, self.sdiCombo, self.jsdCheck, self.jsdCombo,
                       self.fprowCheck, self.fprowCombo, self.totalSCFACheck, self.totalSCFACombo, self.currentStudiesLLCheck,
                       self.currentStudiesLLSpin, self.currentStudiesULCheck, self.currentStudiesULSpin]  
         for field in formFields:
@@ -1014,13 +1244,23 @@ def openActualWindow(self, driveData, otherData):
         donors = dataloader.donorInitiator(driveData, otherData, databaseDirectory)
     else:
         donors = dataloader.donorInitiator(driveData = driveData, otherData = otherData)
-    if otherData == True:
-        dataloader.loadOtherData(donors)
     
+    ##load logistics data
+    #for i in xrange(3):
+    #    try:
+    logistics.loadLogistics(donors)
+    #        break
+    #    except:
+    #        error = QtGui.QErrorMessage()
+    #        error.showMessage(QtCore.QString('Error Loading Logistics Data, will try %d more times' % (2-i)))
+    #        error.exec_()
+    #        continue
     global donorList
     global allDonors
+    global logisticDonors
     donorList = donors
     allDonors = donors
+    logisticDonors = donors
     ui = Ui_Form()
     ui.setupUi(self.Form_2)
     self.Form_2.show()

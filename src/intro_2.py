@@ -8,7 +8,6 @@
 
 from PyQt4 import QtCore, QtGui
 import qdarkstyle
-import DonorUniverseGUI_5
 import DonorUniverseGUI
 driveData = False
 otherData = True

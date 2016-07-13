@@ -8,7 +8,8 @@ import pandas as pd
 from PyQt4 import QtCore, QtGui
 import sys
 import googleDataSearcher
-
+import bioinformatics
+import jsdCalculator
 
 taxonomicMap = [] ##global taxonomic Map 
 donors=[] ##global list of donors
@@ -16,7 +17,7 @@ screeningGroups =sets.Set() ##global set of all screening groups
 sdiAverage = 0
 jsdAverage = 0
 fprowAverage = 0
-totalSCFAAverage = 100
+totalSCFAAverage = 0
 
 def loadSequenceData():
     '''
@@ -33,6 +34,13 @@ def loadSequenceData():
     txt=open('OTUtable.txt')
     header=txt.readline().split()
     
+    #normalize OTU Data
+    totalCounts = [0]*(len(header))
+    for column in xrange(1, len(header)-1):
+        for row in table:    
+            curCount = row[column]
+            totalCounts[column] = totalCounts[column] + curCount
+    
     #for each donor create a sequence object
     sequences = [] # create empty list of sequenceObjects
     for column in xrange(1, len(header)-1):
@@ -43,10 +51,13 @@ def loadSequenceData():
         sixteenS = sequence.sequenceObject() #create sequence object
         sixteenS.donor=int(donor)
         sixteenS.sample=int(sample)
+        sixteenS.totalCount = totalCounts[column]
         nameColumn = len(header)-1 #define column where taxonomic data is located
         otuColumn = 0 #define column where OTU ID is located
+        prausnitzii = 0
+        
         for row in table: #iterate through each OTU
-            otuValue = row[column]
+            otuValue = float(row[column])/float(totalCounts[column])
             ##if this donor doesn't have this OTU, skip it
             if otuValue == 0:
                 continue
@@ -57,6 +68,8 @@ def loadSequenceData():
             for rank in taxRaw:
                 rankName = rank.split('__')
                 tax[rankName[0]]=rankName[1]
+                if rankName[1] == 'prausnitzii':
+                    prausnitzii = prausnitzii + otuValue
             #create new nodes    
             oldNode = sixteenS.head #start at head
             for level in sequence.TaxPyramid: 
@@ -81,14 +94,16 @@ def loadSequenceData():
                 if level == sequence.Species:
                     oldNode.otu.append(row[otuColumn]) 
                     oldNode.otuCount.append(otuValue)
+        sixteenS.sdi = calculateSDI(sixteenS)
+        sixteenS.prausnitzii = prausnitzii
         sequences.append(sixteenS)
     for sequenceData in sequences:
         countCalculator(sequenceData)
+    calculateSDIAverage(sequences)
+    calculatePrauAverage(sequences)
     return sequences
     
     
-
-
 def countCalculator(head):
     '''
     This function counts the total OTUs ending at this level and any below 
@@ -107,13 +122,14 @@ def countCalculator(head):
         head.count = sumVal
 
 
-def donorInitiator( driveData, otherData, databaseDirectory = None):
+def donorInitiator( driveData, otherData, databaseDirectory = None, credentialCWD = None):
     '''
     This function intitiates all the donor objects pointed to the database passed in
     it returns a list of donor objects with appropriate donorIDs, 16s data, and SCFA data
     order is in the same provided in the donorList.csv file
     '''
-    credentialCWD = os.getcwd() # gets directory where credential file is stored
+    if not credentialCWD:
+        credentialCWD = os.getcwd() # gets directory where credential file is stored
     
     ## if no database directory is given, get data from google drive
     if databaseDirectory == None:
@@ -124,6 +140,8 @@ def donorInitiator( driveData, otherData, databaseDirectory = None):
         global screeningGroups
         screeningGroups = returnValue[0]
         donors = returnValue[1]
+        if otherData:
+            loadOtherData(donors)
         return donors
     #Change to database directory and check for correct files, if they aren't there try again
     try:
@@ -132,6 +150,7 @@ def donorInitiator( driveData, otherData, databaseDirectory = None):
         sys.exit()
     except:
         sys.exit()
+    
     fileListCWD = os.listdir(os.getcwd())
     fileCWD = os.getcwd()
     OTUtable = 'OTUtable.txt'
@@ -150,9 +169,8 @@ def donorInitiator( driveData, otherData, databaseDirectory = None):
     for requiredFile in requiredFiles:
         if not requiredFile in fileListCWD:
             newDirectory = raiseFileError()
-            donorInitiator(driveData, otherData, newDirectory)
-            break
-    
+            return donorInitiator(driveData, otherData, newDirectory, credentialCWD)
+        
     if driveData == True:
         os.chdir(credentialCWD)
         try:
@@ -163,6 +181,8 @@ def donorInitiator( driveData, otherData, databaseDirectory = None):
         global screeningGroups
         screeningGroups = returnValue[0]
         donors = returnValue[1]
+        if otherData:
+            loadOtherData(donors)
         return donors
          
     #get donors from DonorInfoFile, and collect metadata
@@ -192,7 +212,8 @@ def donorInitiator( driveData, otherData, databaseDirectory = None):
         newDonor = Donor(donorNum)
         newDonor.addInfo(donorInfo)
         donorList.append(newDonor)
-    
+    if otherData:
+        loadOtherData(donorList)
     return donorList
 
 def loadOtherData(donorList):
@@ -218,7 +239,14 @@ def loadOtherData(donorList):
             if donor.donorID == donorSequence.donor:
                 donor.sequences.append(donorSequence)
     
-    ## asign this list to the global variable donors
+
+    for donor in donorList:
+        donor.averageDonorSDI()
+        donor.averageDonorPrau()
+        
+    jsdCalculator.importJSDFromPickle(donorList)
+       
+    ## assign this list to the global variable donors
     global donors
     donors = donorList
 
@@ -337,8 +365,43 @@ def raiseGoogleDriveError():
     error.showMessage(QtCore.QString('Error Getting Data from Google Drive'))
     error.exec_()
     raise ValueError("No Google Data")
+
+def calculateSDI(sequence):
+    otuDict = {}
+    head = sequence.head
+    q = Queue.Queue()
+    q.put(head)
+    while not q.empty():
+        curNode = q.get()
+        otus = curNode.otu
+        otuCount = curNode.otuCount
+        for otu, val in zip(otus, otuCount):
+            otuDict[otu] = val * sequence.totalCount
+        children = curNode.children
+        for child in children:
+            q.put(child)
+    sdi = bioinformatics.sdi(otuDict)
+    return sdi
+    
+def calculateSDIAverage(sequences):
+    totalSDI = 0
+    count = 0
+    for sequenceObject in sequences:
+        totalSDI = totalSDI + sequenceObject.sdi
+        count = count + 1
+    global sdiAverage
+    sdiAverage =  totalSDI/count
+
+def calculatePrauAverage(sequences):
+    totalPrau = 0
+    count = 0
+    for sequenceObject in sequences:
+        totalPrau = totalPrau + sequenceObject.prausnitzii
+        count = count + 1
+    global fprowAverage
+    fprowAverage =  totalPrau/count
+    
+        
     
     
-            
-            
         

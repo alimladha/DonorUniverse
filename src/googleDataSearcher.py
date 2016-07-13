@@ -6,25 +6,41 @@ from profile import Donor
 import sets
 import os
 import file_setter
+import cPickle as pickle
+import datetime
 
 def loadTable(url):
-    scope = ['https://spreadsheets.google.com/feeds']
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(file_setter.resource_path('credentials.json'), scope)
-    gc = gspread.authorize(credentials)
-    sheet = gc.open_by_url(url)
-    emr = sheet.get_worksheet(0)
-    csvEmr = emr.export('csv')
-    TESTDATA = StringIO(csvEmr)
-    table = pd.read_csv(TESTDATA)
-
-    ##get index of table that isn't null
-    index = 1
-    for index, row in table.iterrows():
-        if pd.isnull(row[0]):
-            break
-        index = index+1
-    table = table[:index]
-    return table
+    try:
+        info = pickle.load(open(url[-5:] +".p", "rb"))
+        table = info[0]
+        date = info[1]
+        margin= datetime.timedelta(days = 7)
+        today = datetime.date.today()
+        if date+margin<today:
+            print "gross too old"
+            raise Exception()
+        return table  
+    except:
+        scope = ['https://spreadsheets.google.com/feeds']
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(file_setter.resource_path('credentials.json'), scope)
+        gc = gspread.authorize(credentials)
+        sheet = gc.open_by_url(url)
+        emr = sheet.get_worksheet(0)
+        csvEmr = emr.export('csv')
+        TESTDATA = StringIO(csvEmr)
+        table = pd.read_csv(TESTDATA)
+    
+        ##get index of table that isn't null
+        index = 1
+        for index, row in table.iterrows():
+            if pd.isnull(row[0]):
+                break
+            index = index+1
+        table = table[:index]
+        today = datetime.date.today()
+        info = [table, today]
+        pickle.dump(info, open(url[-5:]+".p", "wb"))
+        return table
 
 def loadDonorData():
     table = loadTable('https://docs.google.com/spreadsheets/d/197EsVg-p8xZkxfdwpf1wgjhKaJQtrt8lDiDegwOuap0/edit?ts=577188f8#gid=58702749')
@@ -58,3 +74,5 @@ def loadDonorData():
         donorList.append(newDonor)
         
     return [screeningGroups, donorList]
+
+

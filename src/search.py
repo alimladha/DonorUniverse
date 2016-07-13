@@ -263,18 +263,20 @@ def findMatches(form, answers, donors):
             if not processCheck(answers[form.processStatusCombo], donor):
                 continue
         if(answers[form.shippingCheck]):
-            if not shippingCheck(answers[form.processStatusCombo, donor]):
+            if not shippingCheck(answers[form.shippingCombo], donor):
                 continue
         if(answers[form.materialCheck]):
             type_1 = answers[form.materialTypeCombo_1]
             type_2 = answers[form.materialTypeCombo_2]
             type_3 = answers[form.materialTypeCombo_3]
-            if not(type_1) and not(type_2) and not(type_3):
+            type_4 = answers[form.materialTypeCombo_4]
+            if not(type_1) and not(type_2) and not(type_3) and not(type_4):
                 raiseMaterialError()
             val_1 = answers[form.unitsSpin_1]
             val_2 = answers[form.unitsSpin_2]
             val_3 = answers[form.unitsSpin_3]
-            typVal = [(type_1,val_1), (type_2, val_2), (type_3, val_3)]
+            val_4 = answers[form.unitsSpin_4]
+            typVal = [(type_1,val_1), (type_2, val_2), (type_3, val_3), (type_4, val_4)]
             if not materialCheck(typVal, donor):
                 continue
         if(answers[form.screeningGroupCheck]):
@@ -347,30 +349,45 @@ def shippingCheck(status, donor):
 
 def raiseMaterialError():
     error=QtGui.QErrorMessage()
-    error.showMessage(QtCore.QString('No Requested Type of Material'))
+    error.showMessage(QtCore.QString('Invalid Material Search'))
     error.exec_()
-    raise ValueError('No Requested Type of Material')
+    raise ValueError('Invalid Material Search')
 
 def materialCheck(typeValList, donor):
     materialAvailable = donor.materialAvailable
+    if not materialAvailable:
+        return False
     donorPasses = True
     for typeVal in typeValList:
-        type = typeVal[0]
+        if not typeVal[0]:
+            continue
+        types = typeVal[0].split(": ")
+        status = types[0]
+        productType = types[1]
         val = typeVal[1]
-        if not type:
-            continue
-        elif not materialAvailable.has_key(type):
-            continue
-        else:
-            if materialAvailable[type]<val:
-                donorPasses=False
+        donorCount = 0
+        if status == "Total" or status == "Available":
+            curDict = materialAvailable["Available"]
+            if productType in curDict:
+                donorCount = donorCount + curDict[productType][0]
+            elif status == "Available":
+                return False
+        if status == "Total" or status == "Quarantined":
+            curDict = materialAvailable["Quarantined"]
+            if productType in curDict:
+                donorCount = donorCount + curDict[productType][0]
+            elif status == "Quarantined":
+                return False
+        donorPasses = donorCount > val
+        if not donorPasses:
+            break
     return donorPasses
 
 def averageCheck(respectToAverage, average, value):
     if respectToAverage == 'Above Average':
         return value>average
     elif respectToAverage == 'Below Average':
-        return value<average
+        return value<average and value>0
     
 def screenGroupCheck(group, donor):
     return group == donor.getScreeningGroup()
@@ -409,7 +426,6 @@ def displayDonors(table, headerBoxes, headerToFuncDict, clinicalInformationCheck
             item.setText(QtCore.QString(displayString))
         table.setItem(rowCount, colCounter, item)
         colCounter = colCounter + 1 
-    exampleData = table.itemAt(1,0).data(QtCore.Qt.DisplayRole)
     table.setSortingEnabled(True)
     table.resizeColumnsToContents()
     

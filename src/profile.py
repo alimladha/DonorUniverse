@@ -11,6 +11,7 @@
 genderDict = {'m': 'Male', 'f': 'Female', 'M': 'Male', 'F': 'Female'}
 SafetyRatings={'approved': 1, 'conditional': 2, 'restricted': 3, 'rejected': 4}
 import pandas as pd
+import tabulate
 
 class Donor:
     def __init__(self, donorID):
@@ -148,6 +149,33 @@ class Donor:
     def getMaterialAvailable(self):
         return self.materialAvailable
     
+    def displayMaterialAvailable(self):
+        newDict = self.materialAvailable
+        if not newDict or not isinstance(newDict, dict):
+            return ""
+        newDictString = {}
+        for key in newDict.keys():
+            curList = []
+            for item in newDict[key].keys():
+                curItemVal = newDict[key][item]
+                curItemCount = curItemVal[0]
+                unitType = curItemVal[1]
+                if unitType == "unit":
+                    unitType = unitType +"s"
+                elif not unitType:
+                    unitType = ""
+                itemString = item + ": " + str(curItemCount) + " " + unitType
+                curList.append(itemString)
+            newDictString[key] = curList
+        displayString = ''
+        for key in newDictString.keys():
+            displayString = displayString + key + ": "
+            curList = newDictString[key]
+            for item in curList:
+                displayString = displayString + item + ", "
+            displayString = displayString[:-2]
+            displayString = displayString + "\n"
+        return displayString
     def getSDI(self):
         return float(self.sdi)
     def getJSD(self):
@@ -163,7 +191,31 @@ class Donor:
         return self.screeningGroup
     
     def setScreeningGroup(self, val):
-        self.screeningGroup = val    
+        self.screeningGroup = val   
+        
+    def averageDonorSDI(self):
+        if not self.sequences:
+            return
+        totalSDI = 0
+        count = 0
+        for sequenceObject in self.sequences:
+            count = count +1
+            totalSDI = totalSDI + sequenceObject.sdi
+        self.sdi = totalSDI/count
+        
+    def averageDonorPrau(self):
+        if not self.sequences:
+            return
+        totalPrau = 0
+        count = 0
+        for sequenceObject in self.sequences:
+            count = count +1
+            totalPrau = totalPrau + sequenceObject.prausnitzii
+        self.fprow = totalPrau/count
+        
+        
+
+                     
     
     
     

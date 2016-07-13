@@ -62,6 +62,10 @@ class sequenceObject:
         self.head = Node() ##sequence object just contains head Node (ie. no parent)
         self.donor = None
         self.sample = None
+        self.totalCount = 0
+        self.sdi = 0
+        self.prausnitzii = 0
+        self.jsd = 0
         
 
 
