@@ -135,8 +135,8 @@ def donorInitiator( driveData, otherData, databaseDirectory = None, credentialCW
     if databaseDirectory == None:
         try:
             returnValue = googleDataSearcher.loadDonorData()
-        except:
-            raiseGoogleDriveError()
+        except Exception as e:
+            raiseGoogleDriveError(e)
         global screeningGroups
         screeningGroups = returnValue[0]
         donors = returnValue[1]
@@ -175,8 +175,8 @@ def donorInitiator( driveData, otherData, databaseDirectory = None, credentialCW
         os.chdir(credentialCWD)
         try:
             returnValue = googleDataSearcher.loadDonorData()
-        except:
-            raiseGoogleDriveError()
+        except Exception as e:
+            raiseGoogleDriveError(e)
         os.chdir(fileCWD)
         global screeningGroups
         screeningGroups = returnValue[0]
@@ -360,9 +360,9 @@ def raiseFileCannotBeOpenedError():
     error.showMessage(QtCore.QString('Files given cannot be opened'))
     error.exec_()
     
-def raiseGoogleDriveError():
+def raiseGoogleDriveError(e):
     error = QtGui.QErrorMessage()
-    error.showMessage(QtCore.QString('Error Getting Data from Google Drive'))
+    error.showMessage(QtCore.QString(str(e)+os.getcwd()))
     error.exec_()
     raise ValueError("No Google Data")
 

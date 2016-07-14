@@ -99,6 +99,7 @@ class IntroForm(object):
         self.gridLayout.addWidget(self.otherDataLabel, 6, 0, 1, 1)
 
         self.retranslateUi(Form)
+        QtCore.QObject.connect(self.buttonBox.button(QtGui.QDialogButtonBox.Cancel), QtCore.SIGNAL(_fromUtf8('clicked()')), self.cancelButton)
         QtCore.QObject.connect(self.buttonBox.button(QtGui.QDialogButtonBox.Ok), QtCore.SIGNAL(_fromUtf8('clicked()')),lambda: self.getUserInput(Form))
         QtCore.QMetaObject.connectSlotsByName(Form)
 
@@ -111,6 +112,9 @@ class IntroForm(object):
         self.label.setText(_translate("Form", "*Directory Chooser will open", None))
         self.donorDataLabel.setText(_translate("Form", "Donor Data", None))
         self.otherDataLabel.setText(_translate("Form", "16S and SCFA Data", None))
+        
+    def cancelButton(self):
+        sys.exit()
 
 
     def getUserInput(self, Form):

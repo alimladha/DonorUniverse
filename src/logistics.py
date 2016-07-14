@@ -187,6 +187,11 @@ def logisticSearch(answers, donors, form):
     if unitSearchBool and dateSearchBool:
         results = unitSearch(answers, donors_valid, form)
         new_results = cutDownResults(answers, results, form)
+        if not new_results:
+            error = QtGui.QErrorMessage()
+            error.showMessage(QtCore.QString("No Donors Found"))
+            error.exec_()
+            return
         displayUnitSearch(new_results, form)
         
 def displayDateSearch(results, form):

@@ -11,7 +11,6 @@
 genderDict = {'m': 'Male', 'f': 'Female', 'M': 'Male', 'F': 'Female'}
 SafetyRatings={'approved': 1, 'conditional': 2, 'restricted': 3, 'rejected': 4}
 import pandas as pd
-import tabulate
 
 class Donor:
     def __init__(self, donorID):
