@@ -1,35 +1,7 @@
 '''
 This file will be used to calculate anything that has to do with logistics
 
-func unitsAvailableNow(donor) ##function returns how many units are available now
-return donor.materialAvailable
-
-
-
-func unitsAvailable(DonorID, date) ##function returns how many units will be available at a future date (estimated)
- - Must be future date
- time = calculate number of weeks between today and input date
- new product = time*donor.productionRate
- total product = materialAvailable + new product
-
-
-func willBeAvailable(units, DonorID, date) ##function returns if a certain number of units will be available date (estimated)
--must be future date
- time = calculate number of weeks between today and input date
- new product = time*donor.productionRate
- total product = materialAvailable + new product
- if totalProduct>units
- return true
- else
- return false
-
-func dateAvailable(units, DonorID) ##function returns date a certain number of units will be available (estimated)
-new units = untis - donor.materialAvailable
-time = new units / donor.productionRate
-date = time + today
-return date
-'''
-'''
+THIS CODE IS USED TO ACCESS DATACLIPS FILES IF THE SEPARATE DATA APP SHUTS DOWN
 from selenium import webdriver
 import time
 
@@ -63,6 +35,9 @@ MaterialTypes = sets.Set()
 
 
 def loadLogistics(donorList):
+    '''
+    loads logistic data for donors from the json file given by loadPooAppData()
+    '''
     if not donorList:
         return
     data = loadPooAppData()
@@ -92,6 +67,9 @@ def loadLogistics(donorList):
                 
     
 def loadPooAppData():
+    '''
+    loads the data from the poo app and returns it in json format
+    '''
     username = 'sQWhBrIJ43FLmNSqkIN7beX8OumIp85V'
     password = 'ovQR8JY0UwRtG7k4W6QzwnoAuSsANnun'
     theurl = 'https://ob-donor-stats.herokuapp.com/'
@@ -104,7 +82,9 @@ def loadPooAppData():
     returnJson = pagehandle.read()
     parsed_json = json.loads(returnJson)
     return parsed_json
+
 '''
+Data check test:
 testData = loadPooAppData()
 testDonor = testData[0]
 testDict = testDonor['inventory']
@@ -138,6 +118,10 @@ for key in newDict.keys():
 print tabulate.tabulate(newDictString, headers="keys")
 '''
 def reformatMaterialDict(donor):
+    '''
+    takes list form of inventory and turns it into a dictionary format with quarantined and
+    available as the top level keys
+    '''
     if isinstance(donor.materialAvailable, list):
         newDict = {'Quarantined': {}, 'Available': {}}
         for item in donor.materialAvailable:
@@ -156,6 +140,10 @@ def reformatMaterialDict(donor):
         
         
 def logisticSearch(answers, donors, form):
+    '''
+    given a dictionary of logistics answers, a list of donors, and the appropriate form:
+    this function is the high level logistic search function used in DonorUniverseGUI
+    '''
     unitSearchBool = answers[form.unitSearchCheck]
     dateSearchBool = answers[form.dateSearchCheck]
     # if unitSearchBool and dateSearchBool:
@@ -195,6 +183,9 @@ def logisticSearch(answers, donors, form):
         displayUnitSearch(new_results, form)
         
 def displayDateSearch(results, form):
+    '''
+    displays results from date search to the given form
+    '''
     if not results:
         resetResultsTable(form.tableWidget_2)
         return
@@ -236,6 +227,9 @@ def displayDateSearch(results, form):
     table.resizeColumnsToContents()
     
 def displayUnitSearch(results, form):
+    '''
+    displays unit search results to the given form
+    '''
     table = form.tableWidget_2
     if not results:
         resetResultsTable(table)
@@ -262,7 +256,12 @@ def displayUnitSearch(results, form):
                 widgetItem.setText(str(results[j][1]))
             table.setItem(j,i, widgetItem)
     table.resizeColumnsToContents()
+    
 def dateSearch(answers, donors, form):
+    '''
+    performs a date search given answers, a list fo donors, and the appropriate form
+    returns tuple of donors, with estimated material dictionaries as the second value
+    '''
     futureDate = answers[form.dateEdit]
     efficiency = answers[form.efficiencySpin]/100.0
     today = datetime.date.today()
@@ -296,6 +295,10 @@ def dateSearch(answers, donors, form):
     
     
 def unitSearch(answers, donors, form):
+    '''
+    performs unit search given answers, list of donors, and appropriate form
+    returns list of tuples with donor as first value and estimated complete date as second value
+    '''
     requestedMaterials = getMaterialAnswers(answers, form)
     requestedUnits = []
     efficiency = answers[form.efficiencySpin]/100.0
@@ -323,18 +326,27 @@ def unitSearch(answers, donors, form):
 
     return donorResults
 def raiseBothError(form):
+    '''
+    raises error if both date and unit are checked (old function that is no longer used)
+    '''
     error = QtGui.QErrorMessage()
     error.showMessage(QtCore.QString("Can't Perform Both Date and Unit Search"))
     error.exec_()
     return
 
 def raiseNoneError(form):
+    '''
+    error raised when no searches are selected
+    '''
     error = QtGui.QErrorMessage()
     error.showMessage(QtCore.QString("No Searches Selected"))
     error.exec_()
     return
 
 def getMaterialAnswers(answers, form):
+    '''
+    gets material combo answers given the answers dictionary and returns them as a list
+    '''
     materialCombos = [form.materialTypeCombo_Log1, form.materialTypeCombo_Log2, form.materialTypeCombo_Log3, form.materialTypeCombo_Log4]
     requestedMaterials = []
     for combo in materialCombos:
@@ -344,6 +356,10 @@ def getMaterialAnswers(answers, form):
     return requestedMaterials
 
 def getCurrentUnitsByMaterial(currentMaterials, material):
+    '''
+    gets total current amount of material available
+    returns list with first value as the total, second value is current amount available
+    '''
     curAvailableDict = currentMaterials["Available"]
     if curAvailableDict.has_key(material):
         curAvailable = curAvailableDict[material][0]
@@ -358,6 +374,10 @@ def getCurrentUnitsByMaterial(currentMaterials, material):
     return [totalCur, curAvailable]
 
 def cutDownResults(answers, results, form):
+    '''
+    cuts down results if both date and unit search are selected so the cutoff date is reflected 
+    in the results
+    '''
     dateRequired = answers[form.dateEdit]
     donors_valid = []
     for donorTuple in results:
@@ -370,18 +390,27 @@ def cutDownResults(answers, results, form):
     
 
 def raiseNoMaterialSelected(form):
+    '''
+    if no material is selected, this error is raised
+    '''
     error = QtGui.QErrorMessage()
     error.showMessage(QtCore.QString("No Material Selected"))
     error.exec_()
     return
 
 def raiseDuplicateMaterial(form):
+    '''
+    if two of the same material are selected, this error is raised
+    '''
     error = QtGui.QErrorMessage()
     error.showMessage(QtCore.QString("No Duplicate Materials Allowed"))
     error.exec_()
     return
     
 def resetResultsTable(table):
+    '''
+    resets table to one column with header = "Results"
+    '''
     numCols = int(table.columnCount())
     numRows = int(table.rowCount())
     while numCols > 1:

@@ -12,9 +12,7 @@ from sequence import TaxPyramid
 import search
 import collections
 import datetime
-import qdarkstyle
 import logistics
-from PyQt4.Qt import QDate
 #added Code
 
 try:
@@ -826,6 +824,9 @@ class Ui_Form(object):
             spinBox.setMaximum(10000)
             
     def addSearchRow(self):
+        '''
+        This function adds a search row to the 16s Search
+        '''
         box = QtGui.QSpinBox()
         box.setRange(-10, 10)
         rowCount = self.tableWidget.rowCount()
@@ -838,6 +839,9 @@ class Ui_Form(object):
         self.updateKingdoms(rowCount)
         
     def addSearchRowSCFA(self):
+        '''
+        This functions adds a search row for the SCFA search
+        '''
         box = QtGui.QSpinBox()
         box.setRange(-10, 10)
         rowCount = self.tableWidget_SCFA.rowCount()
@@ -850,14 +854,23 @@ class Ui_Form(object):
         self.tableWidget_SCFA.setCellWidget(rowCount, 0, comboBox)
         
     def removeSearchRow(self):
+        '''
+        removes 16s table search row
+        '''
         rowCount = self.tableWidget.rowCount()
         self.tableWidget.removeRow(rowCount-1)
     
     def removeSearchRowSCFA(self):
+        '''
+        removes 16s search row
+        '''
         rowCount = self.tableWidget_SCFA.rowCount()
         self.tableWidget_SCFA.removeRow(rowCount-1)
 
     def addDynamicComboBoxes(self, rowNum):
+        '''
+        This makes the combo boxes dynamically change based on previous column input
+        '''
         numCols = self.tableWidget.columnCount()
         box = QtGui.QComboBox()
         self.tableWidget.setCellWidget(rowNum, 1, box)
@@ -883,6 +896,9 @@ class Ui_Form(object):
         box = QtGui.QComboBox() 
         
     def updateKingdoms(self, rowNum):
+        '''
+        updates kingdom column
+        '''
         kingdomCol = 1
         widget = self.tableWidget.cellWidget(rowNum, kingdomCol)
         if dataloader.taxonomicMap == False:
@@ -895,6 +911,9 @@ class Ui_Form(object):
             return
         
     def updateNextColumn(self, text, row, col):
+        '''
+        works with add dynamic combo boxes to display correct choices for 16s combo boxes
+        '''
         if col+1 < self.tableWidget.columnCount():
             if text != '':
                 taxonomicLevel = col - 1
@@ -914,6 +933,9 @@ class Ui_Form(object):
                 
             
     def returnResults(self, donors):
+        '''
+        returns the results of 16s/SCFA searches
+        '''
         weights = []
         searchDict = self.getSixteenS()
         if not searchDict:
@@ -977,6 +999,9 @@ class Ui_Form(object):
         resultTable.resizeColumnsToContents()
 
     def getSixteenS(self):
+        '''
+        returns a dictionary of all the inputted 16s searches
+        '''
         searchDict = collections.OrderedDict()
         numRows = self.tableWidget.rowCount()
         searchDict = collections.OrderedDict()
@@ -1010,6 +1035,9 @@ class Ui_Form(object):
                 return
         return searchDict  
     def getSCFA(self):
+        '''
+        Gets SCFA search input
+        '''
         scfaList = []
         for row in range(0, self.tableWidget_SCFA.rowCount()):
             scfaLabel = str(self.tableWidget_SCFA.cellWidget(row, 0).currentText())
@@ -1031,6 +1059,9 @@ class Ui_Form(object):
         return scfaList
 
     def searchDonors(self):
+        '''
+        high level donor search function
+        '''
         resetResultsTable(self.tableWidgetDonor)
         answers = self.getFormInfo()
         donorResults = search.findMatches(self, answers, allDonors)
@@ -1060,6 +1091,9 @@ class Ui_Form(object):
             search.displayDonors(self.tableWidgetDonor, headerBoxes, headerToFunc, self.clinicalInfoCheck)
         self.scrollArea.verticalScrollBar().setValue(self.scrollArea.verticalScrollBar().maximum())
     def getFormInfo(self):
+        '''
+        gets the form answers and puts them in a dictionary with the fields as keys
+        '''
         formFields = [self.clinicalInfoCheck, self.screeningGroupCheck, self.screeningGroupCombo, self.donorCheck, self.donorSpin, self.safetyRatingCheck, self.safetyRatingCombo, self.currentStudiesCheck, self.bmiCheck, 
                      self.bmiULcheck, self.bmiULSpin, self.bmiLLCheck, self.bmiLLSpin, self.waistCheck, self.waistULCheck, 
                      self.waistULSpin, self.waistLLCheck, self.waistLLSpin, self.ageCheck, self.ageULCheck, self.ageLLCheck,
@@ -1083,6 +1117,9 @@ class Ui_Form(object):
                 formAnswer[field] = field.isChecked()
         return formAnswer
     def getLogisticForm(self):
+        '''
+        gets logistic search input using dictionary format. The fields act as keys to the answers
+        '''
         formFields = [self.efficiencySpin, self.materialTypeCombo_Log1, self.materialTypeCombo_Log2, self.materialTypeCombo_Log3,
                       self.materialTypeCombo_Log4, self.unitsSpin_Log1, self.unitsSpin_Log2, self.unitsSpin_Log3, 
                       self.unitsSpin_Log4, self.dateSearchCheck, self.dateEdit, self.unitSearchCheck]
@@ -1104,11 +1141,17 @@ class Ui_Form(object):
         return formAnswer
     
     def logisticSearch(self):
+        '''
+        performs logistic search (using import from logistics)
+        '''
         resetResultsTable(self.tableWidget_2)
         answers = self.getLogisticForm()
         logistics.logisticSearch(answers, logisticDonors, self)
     
     def exportSixteenS(self):
+        '''
+        exports donor search for 16s Search
+        '''
         sequenceResults = []
         for donor in donorSearchResults:
             donorSequenceData = donor.getSequences()
@@ -1123,18 +1166,27 @@ class Ui_Form(object):
         self.donorPoolLabel.setText(QtCore.QString("Most Recent Donor Search"))
         
     def exportLogistic(self):
+        '''
+        exports donor search for logistics search
+        '''
         global logisticDonors
         logisticDonors = donorSearchResults
         resetResultsTable(self.tableWidget_2)
         self.donorPoolLabel_Log.setText(QtCore.QString("Most Recent Donor Search"))
     
     def resetLogPool(self):
+        '''
+        resets logsitic donor pool
+        '''
         global logisticDonors
         logisticDonors = allDonors
         resetResultsTable(self.tableWidget_2)
         self.donorPoolLabel_Log.setText(QtCore.QString("All Donors"))
     
     def resetDonorPool(self):
+        '''
+        resets 16s donor pool
+        '''
         global donorList 
         donorList = allDonors
         sequenceResults = []
@@ -1149,6 +1201,9 @@ class Ui_Form(object):
         self.donorPoolLabel.setText(QtCore.QString("All Donors"))
         
     def resetSequenceSearch(self):
+        '''
+        resets 16s/SCFA search table
+        '''
         numSixteenSearches = int(self.tableWidget.rowCount())
         if numSixteenSearches >0:
             while numSixteenSearches>0:
@@ -1161,6 +1216,9 @@ class Ui_Form(object):
                 numSCFASearches=numSCFASearches-1 
             
     def resetDonorSearch(self):
+        '''
+        resets Donor Search
+        '''
         formFields = [self.clinicalInfoCheck, self.screeningGroupCheck, self.screeningGroupCombo, self.donorCheck, self.donorSpin, self.safetyRatingCheck, self.safetyRatingCombo, self.currentStudiesCheck, self.bmiCheck, 
                       self.bmiULcheck, self.bmiULSpin, self.bmiLLCheck, self.bmiLLSpin, self.waistCheck, self.waistULCheck, 
                       self.waistULSpin, self.waistLLCheck, self.waistLLSpin, self.ageCheck, self.ageULCheck, self.ageLLCheck,
@@ -1176,12 +1234,18 @@ class Ui_Form(object):
             if isinstance(field, QtGui.QRadioButton):
                 field.setChecked(False)
 def listToQstringList(inputList):
+    '''
+    takes list of strings and turns it into a QString List
+    '''
     qlist = QtCore.QStringList()
     for item in inputList:
         qitem = QtCore.QString(item)
         qlist.append(qitem)
     return qlist
 def getSCFAComboBox():
+    '''
+    makes a SCFA Combo Boxes
+    '''
     #get a list of SCFA
     dictSCFA = {}
     for donor in donorList:
@@ -1197,22 +1261,34 @@ def getSCFAComboBox():
     return comboBox
 
 def raiseFileError():
+    '''
+    file error for files not being in given directory
+    '''
     error = QtGui.QErrorMessage()
     error.showMessage(QtCore.QString('File directory chosen does not include required files'))
     error.exec_()
     return showFileOpener()
     
 def raiseLimitError():
+    '''
+    search limit error
+    '''
     error = QtGui.QErrorMessage()
     error.showMessage(QtCore.QString('Something is wrong with the upper and lower limits set on one of your searches!'))
     error.exec_()
     raise ValueError('Limit Problem')
 
 def showFileOpener():
+    '''
+    shows file opener and returns chosen directory
+    '''
     databaseDirectory = QtGui.QFileDialog.getExistingDirectory(None,QtCore.QString("Open Database Directory"),"/home", QtGui.QFileDialog.ShowDirsOnly | QtGui.QFileDialog.DontResolveSymlinks)
     return databaseDirectory
 
 def resetResultsTable(table):
+    '''
+    resets any table to one column with a results header
+    '''
     numCols = int(table.columnCount())
     numRows = int(table.rowCount())
     while numCols > 1:
@@ -1226,10 +1302,17 @@ def resetResultsTable(table):
     table.setHorizontalHeaderItem(0, item)
     
 def quitApp():
+    '''
+    quits app
+    '''
+    
     QtGui.QApplication.quit()
     
     
 def openActualWindow(self, driveData, otherData):
+    '''
+    opens main window when called
+    '''
     #import sys
     #app = QtGui.QApplication(sys.argv)
     self.Form_2 = QtGui.QWidget()

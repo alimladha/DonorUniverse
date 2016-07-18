@@ -218,6 +218,9 @@ def listDonorRankSearcher(donorList, donorID):
     return False
 
 def findMatches(form, answers, donors):
+    '''
+    given the form, answers, and list of donors, finds matches that reflect donors based on answers
+    '''
     donorMatches = []
     for donor in donors:
         if(answers[form.donorCheck]):
@@ -302,6 +305,9 @@ def findMatches(form, answers, donors):
     return donorMatches
         
 def isSafe(safetyRating, donor):
+    '''
+    checks if donor meets given safety rating
+    '''
     safetyRatingNum = SafetyRatings[safetyRating]
     if safetyRatingNum < 5:
         return safetyRatingNum == donor.safetyRating
@@ -309,7 +315,11 @@ def isSafe(safetyRating, donor):
         return donor.safetyRating < 3
     elif safetyRatingNum == 6:
         return donor.safetyRating < 4
+    
 def meetsRange(wantLL, ll, wantUL, ul, donorValue):
+    '''
+    checks if value is within a given range depending if there is a lower limit and upper limit
+    '''
     if donorValue == None:
         return False
     if wantLL == False and wantUL == False:
@@ -325,12 +335,18 @@ def meetsRange(wantLL, ll, wantUL, ul, donorValue):
         return donorValue<=ul
 
 def raiseLimitError():
+    '''
+    raises error if there is a problem with lower/upper limits set by the user
+    '''
     error = QtGui.QErrorMessage()
     error.showMessage(QtCore.QString('Something is wrong with the upper and lower limits set on one of your searches!'))
     error.exec_()
     raise ValueError('Limit Problem')
 
 def rightGender(wantMale, wantFemale, gender):
+    '''
+    checks if donor is correct gender
+    '''
     if not(wantMale) and not(wantFemale):
         error = QtGui.QErrorMessage()
         error.showMessage(QtCore.QString('No gender selected'))
@@ -342,18 +358,30 @@ def rightGender(wantMale, wantFemale, gender):
         return gender =='Female' 
     
 def processCheck(status, donor):
+    '''
+    checks if donor meets the processing status requirements
+    '''
     return donor.processingStatus == status
 
 def shippingCheck(status, donor):
+    '''
+    checks if donor meets the shipping status requirements
+    '''
     return donor.shippingStatus == status
 
 def raiseMaterialError():
+    '''
+    raises error if there is an invalid material search
+    '''
     error=QtGui.QErrorMessage()
     error.showMessage(QtCore.QString('Invalid Material Search'))
     error.exec_()
     raise ValueError('Invalid Material Search')
 
 def materialCheck(typeValList, donor):
+    '''
+    checks if donor has the requested material
+    '''
     materialAvailable = donor.materialAvailable
     if not materialAvailable:
         return False
@@ -384,17 +412,26 @@ def materialCheck(typeValList, donor):
     return donorPasses
 
 def averageCheck(respectToAverage, average, value):
+    '''
+    checks if the donor meets the below or above average requirement for 16s and SCFA search
+    '''
     if respectToAverage == 'Above Average':
         return value>average
     elif respectToAverage == 'Below Average':
         return value<average and value>0
     
 def screenGroupCheck(group, donor):
+    '''
+    checks if donor is in the right screening group
+    '''
     return group == donor.getScreeningGroup()
         
             
         
 def displayDonors(table, headerBoxes, headerToFuncDict, clinicalInformationCheckbox):
+    '''
+    displays donor results from a donor search
+    '''
     colCounter = 0
     rowCount = int(table.rowCount())
     table.insertRow(rowCount)
@@ -430,6 +467,9 @@ def displayDonors(table, headerBoxes, headerToFuncDict, clinicalInformationCheck
     table.resizeColumnsToContents()
     
 def displayHeaders(table, headers, clinicalInformationCheckbox):
+    '''
+    displays headers from a donor search
+    '''
     table.setColumnCount(len(headers)-1)
     colCounter = 0
     for header in headers:
@@ -457,6 +497,11 @@ def displayHeaders(table, headers, clinicalInformationCheckbox):
     
             
 def overallProfileRanker(resultsLists, weights):
+    '''
+    creates a combined profile ranker for 16s/SCFA search (algorithm for combined results column)
+    takes donor position and gives it a score and multiplies it by weight. If a donor isn't in all the 
+    lists for a search, they are automatically rejected. Lowest score "wins"
+    '''
     results = []
     counter = 0
     for resultList, weight in zip(resultsLists, weights):
@@ -485,6 +530,10 @@ def overallProfileRanker(resultsLists, weights):
                 
             
 def donorListScorer(donorRankList):
+    '''
+    given a list of donors ordered by their rank in a list, returns a list with scores so that ties are
+    all the same score (that is weighted)
+    '''
     counter = 1
     newDonorList = []
     for i in xrange(len(donorRankList)):
