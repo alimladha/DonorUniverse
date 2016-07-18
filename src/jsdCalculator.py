@@ -10,6 +10,10 @@ import cPickle as pickle
 import datetime
 import sets
 def calculateJSD(sequences):
+    '''
+    for a list of sequences, calculates the JSD between each other and assigns the median JSD score for each
+    sequence as the JSD value
+    '''
     otuDicts = convertSequenceToDict(sequences)
     for i in xrange(len(otuDicts)):
         otuDict = otuDicts[i]
@@ -25,6 +29,9 @@ def calculateJSD(sequences):
         
         
 def calculateDonorJSD(donorList):
+    '''
+    calculates the JSD for each donor given a list of donors
+    '''
     sequences = []
     jsdDict = {}
     for donor in donorList:
@@ -54,6 +61,10 @@ def calculateDonorJSD(donorList):
     
     
 def importJSDFromPickle(donorList):
+    '''
+    tries using the pickled file to calculate JSD, if not it redoes the calculation
+    (this will also automatically recalculate the JSD file if it is more than 1 week old)
+    '''
     try:
         jsdDict = pickle.load(open("jsd.p", "rb"))
     except:
@@ -72,6 +83,9 @@ def importJSDFromPickle(donorList):
     dataloader.jsdAverage = jsdDict['Average']           
             
 def convertSequenceToDict(sequences):
+    '''
+    converts a sequence object to a otu: count dictionary
+    '''
     otuKeys = sets.Set()
     otuDicts = []
     for sequence in sequences:

@@ -94,11 +94,13 @@ def loadSequenceData():
                 if level == sequence.Species:
                     oldNode.otu.append(row[otuColumn]) 
                     oldNode.otuCount.append(otuValue)
-        sixteenS.sdi = calculateSDI(sixteenS)
-        sixteenS.prausnitzii = prausnitzii
-        sequences.append(sixteenS)
+        sixteenS.sdi = calculateSDI(sixteenS) #for each new sequence, calculate the SDI
+        sixteenS.prausnitzii = prausnitzii ##assign the prausnitzii score to the sequence
+        sequences.append(sixteenS) # add sequence tor return list
+    #for each sequence, calculate the count at each level
     for sequenceData in sequences:
         countCalculator(sequenceData)
+    #calculate the SDI average for all sequences, and Prau average
     calculateSDIAverage(sequences)
     calculatePrauAverage(sequences)
     return sequences
@@ -159,18 +161,20 @@ def donorInitiator( driveData, otherData, databaseDirectory = None, credentialCW
     
     requiredFiles = []
     
+    ##if no drive data, check for donor info file
     if driveData == False:
         requiredFiles.append(DonorInfoFile)
     
+    #if requested otherData, add OTUtable and SCFAData to required files
     if otherData == True:
         requiredFiles.append(OTUtable)
         requiredFiles.append(SCFAData)
-        
+    #check all required files are available in given directory, otherwise try again    
     for requiredFile in requiredFiles:
         if not requiredFile in fileListCWD:
             newDirectory = raiseFileError()
             return donorInitiator(driveData, otherData, newDirectory, credentialCWD)
-        
+    #iff using driveData, try to geet it from the google drive     
     if driveData == True:
         os.chdir(credentialCWD)
         try:
@@ -335,38 +339,53 @@ def setSCFAAverage(donors):
             count = count+1
     global totalSCFAAverage
     totalSCFAAverage = sumSCFA/count
-
-def quitApp():
-    QtGui.QApplication.quit()
     
 def raiseLimitError():
+    '''
+    This function raises an error on inputted limits of searches
+    '''
     error = QtGui.QErrorMessage()
     error.showMessage(QtCore.QString('Something is wrong with the upper and lower limits set on one of your searches!'))
     error.exec_()
     raise ValueError('Limit Problem')
 
 def raiseFileError():
+    '''
+    this error alerts user not all required files are in directory
+    '''
     error = QtGui.QErrorMessage()
     error.showMessage(QtCore.QString('File directory chosen does not include required files'))
     error.exec_()
     return showFileOpener()
 
 def showFileOpener():
+    '''
+    This funciton shows the directory chooser and returns the directory
+    '''
     databaseDirectory = QtGui.QFileDialog.getExistingDirectory(None,QtCore.QString("Open Database Directory"),"/home", QtGui.QFileDialog.ShowDirsOnly | QtGui.QFileDialog.DontResolveSymlinks)
     return databaseDirectory
 
 def raiseFileCannotBeOpenedError():
+    '''
+    returns a file cannot be opened error
+    '''
     error = QtGui.QErrorMessage()
     error.showMessage(QtCore.QString('Files given cannot be opened'))
     error.exec_()
     
 def raiseGoogleDriveError(e):
+    '''
+    raises an error with google drive
+    '''
     error = QtGui.QErrorMessage()
     error.showMessage(QtCore.QString(str(e)+os.getcwd()))
     error.exec_()
     raise ValueError("No Google Data")
 
 def calculateSDI(sequence):
+    '''
+    Calculates the SDI of a sequence using bioinformatics.py
+    '''
     otuDict = {}
     head = sequence.head
     q = Queue.Queue()
@@ -384,6 +403,9 @@ def calculateSDI(sequence):
     return sdi
     
 def calculateSDIAverage(sequences):
+    '''
+    Calculate the SDI of average of all sequences. All sequences have already calculated SDI's
+    '''
     totalSDI = 0
     count = 0
     for sequenceObject in sequences:
@@ -393,6 +415,9 @@ def calculateSDIAverage(sequences):
     sdiAverage =  totalSDI/count
 
 def calculatePrauAverage(sequences):
+    '''
+    Calculates the F.Prau average
+    '''
     totalPrau = 0
     count = 0
     for sequenceObject in sequences:

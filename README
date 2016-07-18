@@ -5,3 +5,8 @@ CR Donor Universe
 
 README
 
+App and exe files are located in dist directory
+examples of database files are locatd in Databases directory
+all source code is located in the src folder
+Images just has the donor splash content. This folder must contain this file or it will not be properly packaged
+Venv contains the interpreter used to run the program locally with python

@@ -7,6 +7,10 @@ import sets
 import file_setter
 
 def loadTable(url):
+    '''
+    loads google spreadsheet table from a google spreadsheet url
+    returns table until one of the rows in the first column is null
+    '''
     scope = ['https://spreadsheets.google.com/feeds']
     credentials = ServiceAccountCredentials.from_json_keyfile_name(file_setter.resource_path('credentials.json'), scope)
     gc = gspread.authorize(credentials)
@@ -25,6 +29,11 @@ def loadTable(url):
     return table
 
 def loadDonorData():
+    '''
+    loads the donor data from google drive
+    returns all screening groups as the first return value in the return list
+    returns list of loaded donors as the second value in the return list
+    '''
     table = loadTable('https://docs.google.com/spreadsheets/d/197EsVg-p8xZkxfdwpf1wgjhKaJQtrt8lDiDegwOuap0/edit?ts=577188f8#gid=58702749')
     donorNumList = []
     infoArrays = []
