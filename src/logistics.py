@@ -32,6 +32,9 @@ import math
 Statuses = sets.Set()
 MaterialTypes = sets.Set()
 
+weights = {'acid_resistant_capsules': 0.75, 'fmp_250': 22.72, 'fmp_30': 8.57,'gelatin_capsules': 0.75, 
+           'fmp_enema': 71.4, 'fmp_r': 0.28, 'double_encapsulation_capsules': .6}
+
 
 
 def loadLogistics(donorList):
@@ -283,7 +286,10 @@ def dateSearch(answers, donors, form):
             curAvail = totalCur[1]
             totalCur = totalCur[0]            
             totalNewWeight = time*prodRatePerMaterial
-            numNewUnits = totalNewWeight# / weights[material]#
+            if weights.has_key(material):
+                numNewUnits = totalNewWeight/weights[material]
+            else:
+                numNewUnits = totalNewWeight
             units = totalCur + numNewUnits
             if units ==0:
                 percentAvailableNow = 100
@@ -316,7 +322,10 @@ def unitSearch(answers, donors, form):
             totalCur = totalCur[0]
             newUnitsNeeded = requestedUnits[i] - totalCur
             if newUnitsNeeded>0:
-                newWeight = newUnitsNeeded #*weights[material]
+                if weights.has_key(material):
+                    newWeight = newUnitsNeeded*weights[material]
+                else:
+                    newWeight = newUnitsNeeded
                 totalWeight = totalWeight + newWeight
         productionRate = donor.productionRate *efficiency
         daysRequired = totalWeight/productionRate * 7
